@@ -5,7 +5,9 @@
     <Copyright>Copyright © Nop Solutions, Ltd</Copyright>
     <Company>Nop Solutions, Ltd</Company>
     <Authors>Nop Solutions, Ltd</Authors>
-    <PackageLicenseUrl>https://github.com/nopSolutions/amazonpay-for-nopcommerce/blob/nopCommerce-4.70/LICENSE.md</PackageLicenseUrl>
+    <!-- <Metalama> error NU5035: The PackageLicenseUrl is being deprecated and cannot be used in conjunction with the PackageLicenseFile or PackageLicenseExpression. -->
+    <!-- <PackageLicenseUrl>https://github.com/nopSolutions/amazonpay-for-nopcommerce/blob/nopCommerce-4.70/LICENSE.md</PackageLicenseUrl> -->
+    <!-- </Metalama> -->
     <RepositoryUrl>https://github.com/nopSolutions/amazonpay-for-nopcommerce</RepositoryUrl>
     <PackageProjectUrl>https://www.nopcommerce.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nopSolutions/nopCommerce</RepositoryUrl>
