@@ -91,7 +91,10 @@ public class AvalaraTaxController : TaxController
 
     [HttpPost]
     [CheckPermission(StandardPermission.Configuration.MANAGE_TAX_SETTINGS)]
-    public override async Task<IActionResult> Categories(TaxCategorySearchModel searchModel)
+    public override async Task<IActionResult> Categories(
+
+        // TODO: Remove "Nop.Web.Areas.Admin.Models.Tax." after fixing #35546.
+        Nop.Web.Areas.Admin.Models.Tax.TaxCategorySearchModel searchModel)
     {
         //ensure that Avalara tax provider is active
         if (!await _taxPluginManager.IsPluginActiveAsync(AvalaraTaxDefaults.SystemName))

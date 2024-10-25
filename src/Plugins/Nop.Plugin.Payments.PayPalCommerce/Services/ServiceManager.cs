@@ -162,7 +162,9 @@ public class ServiceManager
     /// The task result contains the result
     /// </returns>
     protected static async Task<TResult> HandleCheckoutRequestAsync<TRequest, TResult>(PayPalCommerceSettings settings, TRequest request)
-        where TRequest : HttpRequest where TResult : class
+
+        // TODO: Remove "PayPalHttp." after fixing #35546.
+        where TRequest : PayPalHttp.HttpRequest where TResult : class
     {
         //prepare common request params
         request.Headers.Add(HeaderNames.UserAgent, PayPalCommerceDefaults.UserAgent);
