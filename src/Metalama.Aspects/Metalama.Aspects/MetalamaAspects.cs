@@ -183,32 +183,38 @@ namespace Metalama.Aspects
             #region fixed and/or working
             /* Fixed and working tests */
 
+            // The field on this type is used as an out parameter, so it cannot be overridden.
+            static bool isNotSkipped(IField it) => it.DeclaringType.FullName != "Nop.Tests.Nop.Core.Tests.Infrastructure.ConcurrentTrieTests";
+
             // FIXED: CSC : error LAMA0001: Unexpected exception occurred in Metalama: Exception of type 'Metalama.Framework.Engine.AssertionFailedException' was thrown.
             amender
                 .Outbound.SelectMany(p =>
                     p.Types.SelectMany(t => t.Fields)
-                    .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
-                    .Where(it => it is not IField { Writeability: Writeability.None })
-                    .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
+                        .Where(isNotSkipped)
+                        .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
+                        .Where(it => it is not IField { Writeability: Writeability.None })
+                        .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
                 .AddAspect<OverridePropertyAttribute>();
 
             amender
                 .Outbound.SelectMany(p => 
                     p.Types.SelectMany(t => t.Fields )
-                    .SelectMany(p => new [] {p.GetMethod!, p.SetMethod! }.Where(m => m != null))
-                    .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared)
-                    .Where(it => it is not IField { Writeability: Writeability.None })
-                    .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
+                        .Where(isNotSkipped)
+                        .SelectMany(p => new [] {p.GetMethod!, p.SetMethod! }.Where(m => m != null))
+                        .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared)
+                        .Where(it => it is not IField { Writeability: Writeability.None })
+                        .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
                 .AddAspects(new LoggingAspect(), new ForcedJumpOverrideAspect(), new UninlineableOverrideAspect());
 
             // Contracts on fields
             amender
                 .Outbound.SelectMany(p => 
                     p.Types.SelectMany(t => t.Fields )
-                    .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
-                    .Where(it => it is not IField { Writeability: Writeability.None })
-                    .Where(it => it.GetMethod!.GetIteratorInfo().EnumerableKind == EnumerableKind.None)
-                    .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
+                        .Where(isNotSkipped)
+                        .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
+                        .Where(it => it is not IField { Writeability: Writeability.None })
+                        .Where(it => it.GetMethod!.GetIteratorInfo().EnumerableKind == EnumerableKind.None)
+                        .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
                 .AddAspect<FieldOrPropertyContract>();
 
             #endregion
