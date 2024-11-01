@@ -1,4 +1,5 @@
-﻿using Metalama.Aspects;
+﻿using System.Reflection.Metadata.Ecma335;
+using Metalama.Aspects;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Fabrics;
@@ -37,7 +38,7 @@ namespace Metalama.Aspects
         public static void AddAspects<T>(this IAspectReceiver<T> aspectReceiver, params IAspect<T>[] aspects)
             where T : class, IDeclaration
         {
-            foreach(var aspect in aspects)
+            foreach (var aspect in aspects)
             {
                 aspectReceiver.AddAspect(aspect.GetType(), _ => aspect);
             }
@@ -50,7 +51,7 @@ namespace Metalama.Aspects
     public static class AspectLog
     {
         public static void Write(string s)
-        {            
+        {
             // This makes sure the aspect code does not write to console, which seems to retain memory in tests.
         }
     }
@@ -81,28 +82,28 @@ namespace Metalama.Aspects
                .SelectMany(p => p.Types.SelectMany(t => t.Methods).Where(m => 
                     !m.IsAbstract 
                     && !m.IsImplicitlyDeclared
-                    && m.GetIteratorInfo() is {IsIteratorMethod: false, EnumerableKind: not EnumerableKind.IAsyncEnumerable and not EnumerableKind.IAsyncEnumerator} ))
+                    && m.GetIteratorInfo() is { IsIteratorMethod: false, EnumerableKind: not EnumerableKind.IAsyncEnumerable and not EnumerableKind.IAsyncEnumerator }))
                .AddAspect<LoggingAspect>();
 
             // Contracts.
             amender
                 .SelectMany(p => 
                     p.Types
-                    .SelectMany( t => t.Methods )
-                    .Where(m => !m.IsImplicitlyDeclared )
-                    .Where(m => m is not { IsPartial: true, HasImplementation: false } )
-                    .Where(m => m.ReturnType != TypeFactory.GetType(SpecialType.Void) && m.GetAsyncInfo().ResultType != TypeFactory.GetType(SpecialType.Void) ) 
-                    .Where(m => m.GetIteratorInfo() is not {IsIteratorMethod: true, EnumerableKind: EnumerableKind.IAsyncEnumerable } )
+                    .SelectMany(t => t.Methods)
+                    .Where(m => !m.IsImplicitlyDeclared)
+                    .Where(m => m is not { IsPartial: true, HasImplementation: false })
+                    .Where(m => m.ReturnType != TypeFactory.GetType(SpecialType.Void) && m.GetAsyncInfo().ResultType != TypeFactory.GetType(SpecialType.Void))
+                    .Where(m => m.GetIteratorInfo() is not { IsIteratorMethod: true, EnumerableKind: EnumerableKind.IAsyncEnumerable })
                     .Select(m => m.ReturnParameter))
                 .AddAspectIfEligible<ParameterContract>();
 
             amender
                 .SelectMany(p => 
                     p.Types
-                    .SelectMany( t => 
+                    .SelectMany(t =>
                         t.Methods
-                        .Where(m => m is not { IsPartial: true, HasImplementation: false } )
-                        .Where(m => !m.IsImplicitlyDeclared ) )
+                        .Where(m => m is not { IsPartial: true, HasImplementation: false })
+                        .Where(m => !m.IsImplicitlyDeclared))
                     .SelectMany(m => m.Parameters))
                 .AddAspectIfEligible<ParameterContract>();
                
@@ -110,7 +111,7 @@ namespace Metalama.Aspects
 
             #region errors
             /* Tests causing errors */
-            
+
             // Using LoggingAspect on IAsyncEnumerable/Enumerator methods (bug #31108).
             // amender
             //    .With(p => p.Types.SelectMany(t => t.Methods).Where(m => 
@@ -131,8 +132,12 @@ namespace Metalama.Aspects
             #region fixed and/or working
             /* Fixed and working tests */
 
+            // Overriding this property seems to break the ORM (specifically, the Nop.Tests.Nop.Web.Tests.Public.Factories.ProductModelFactoryTests.CanPreparePriceModel test).
+            static bool isNotDiscountMappingId(IProperty property) => property is not { Name: "Id", DeclaringType.Name: "DiscountMapping" };
+
             amender.SelectMany(p =>
                 p.Types.SelectMany(t => t.Properties)
+                .Where(isNotDiscountMappingId)
                 .Where(it => it is not { IsOverride: true, OverriddenProperty: { IsAbstract: true, GetMethod: not null, SetMethod: null } })
                 .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Interface })
                 .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared))
@@ -152,19 +157,21 @@ namespace Metalama.Aspects
                 .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
                 .Where(it => it.DeclaringType is { TypeKind: TypeKind.Interface }))
             .AddAspect<OverridePropertyAttribute>();
-                           
+
             // Method aspects on property accessors.
             amender
-                .SelectMany(p => 
-                    p.Types.SelectMany(t => t.Properties )
-                    .SelectMany(p => new [] {p.GetMethod!, p.SetMethod! }.Where(m => m != null))
+                .SelectMany(p =>
+                    p.Types.SelectMany(t => t.Properties)
+                    .Where(isNotDiscountMappingId)
+                    .SelectMany(p => new[] { p.GetMethod!, p.SetMethod! }.Where(m => m != null))
                     .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared))
                 .AddAspects(new LoggingAspect(), new ForcedJumpOverrideAspect(), new UninlineableOverrideAspect());
 
             // Contracts on properties
             amender
-                .SelectMany(p => 
-                    p.Types.SelectMany(t => t.Properties )
+                .SelectMany(p =>
+                    p.Types.SelectMany(t => t.Properties)
+                    .Where(isNotDiscountMappingId)
                     .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared))
                     .Where(it => it.GetMethod == null || it.GetMethod.GetIteratorInfo().EnumerableKind == EnumerableKind.None)
                 .AddAspect<FieldOrPropertyContract>();
@@ -198,10 +205,10 @@ namespace Metalama.Aspects
                 .AddAspect<OverridePropertyAttribute>();
 
             amender
-                .SelectMany(p => 
-                    p.Types.SelectMany(t => t.Fields )
+                .SelectMany(p =>
+                    p.Types.SelectMany(t => t.Fields)
                         .Where(isNotSkipped)
-                        .SelectMany(p => new [] {p.GetMethod!, p.SetMethod! }.Where(m => m != null))
+                        .SelectMany(p => new[] { p.GetMethod!, p.SetMethod! }.Where(m => m != null))
                         .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared)
                         .Where(it => it is not IField { Writeability: Writeability.None })
                         .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
@@ -209,8 +216,8 @@ namespace Metalama.Aspects
 
             // Contracts on fields
             amender
-                .SelectMany(p => 
-                    p.Types.SelectMany(t => t.Fields )
+                .SelectMany(p =>
+                    p.Types.SelectMany(t => t.Fields)
                         .Where(isNotSkipped)
                         .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
                         .Where(it => it is not IField { Writeability: Writeability.None })
@@ -233,9 +240,9 @@ namespace Metalama.Aspects
 
             // Method aspects on event accessors.
             amender
-                .SelectMany(p => 
-                    p.Types.SelectMany(t => t.Events )
-                    .SelectMany(p => new [] {p.AddMethod!, p.RemoveMethod! }.Where(m => m != null))
+                .SelectMany(p =>
+                    p.Types.SelectMany(t => t.Events)
+                    .SelectMany(p => new[] { p.AddMethod!, p.RemoveMethod! }.Where(m => m != null))
                     .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared))
                 .AddAspects(new LoggingAspect(), new ForcedJumpOverrideAspect(), new UninlineableOverrideAspect());
         }
@@ -279,22 +286,22 @@ namespace Metalama.Aspects
     {
         public override void AmendProject(IProjectAmender amender)
         {
-            amender.SelectMany(p => 
+            amender.SelectMany(p =>
                 p.Types
                 .Where(t => t.TypeKind is not (TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) && !t.IsImplicitlyDeclared))
                 .AddAspect<FieldIntroductionAttribute>();
 
-            amender.SelectMany(p => 
+            amender.SelectMany(p =>
                 p.Types
                 .Where(t => t.TypeKind is not (TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) && !t.IsImplicitlyDeclared))
                 .AddAspect<MethodIntroductionAttribute>();
 
-            amender.SelectMany(p => 
+            amender.SelectMany(p =>
                 p.Types
                 .Where(t => t.TypeKind is not (TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) && !t.IsImplicitlyDeclared))
                 .AddAspect<PropertyIntroductionAttribute>();
 
-            amender.SelectMany(p => 
+            amender.SelectMany(p =>
                 p.Types
                 .Where(t => t.TypeKind is not (TypeKind.Interface or TypeKind.Enum or TypeKind.Delegate) && !t.IsImplicitlyDeclared))
                 .AddAspect<EventIntroductionAttribute>();
@@ -340,7 +347,7 @@ namespace Metalama.Aspects
     {
         public override void BuildAspect(IAspectBuilder<INamedType> builder)
         {
-            if (!builder.Target.IsStatic 
+            if (!builder.Target.IsStatic
                 && !builder.Target.AllMembers().Any(m => m.Name == nameof(IntroducedField))
                 && !IntroductionHelper.IsSkipped(builder.Target))
             {
@@ -371,7 +378,7 @@ namespace Metalama.Aspects
                 {
                     builder.Advice.IntroduceProperty(builder.Target, nameof(IntroducedProperty), whenExists: OverrideStrategy.Ignore);
                 }
-                
+
                 if (!builder.Target.AllMembers().Any(m => m.Name == nameof(IntroducedGetOnlyProperty)))
                 {
                     builder.Advice.IntroduceProperty(builder.Target, nameof(IntroducedGetOnlyProperty), whenExists: OverrideStrategy.Ignore);
@@ -404,7 +411,7 @@ namespace Metalama.Aspects
                 {
                     builder.Advice.IntroduceEvent(builder.Target, nameof(IntroducedEvent), whenExists: OverrideStrategy.Ignore);
                 }
-                
+
                 if (!builder.Target.AllMembers().Any(m => m.Name == nameof(IntroducedEventField)))
                 {
                     builder.Advice.IntroduceEvent(builder.Target, nameof(IntroducedEventField), whenExists: OverrideStrategy.Ignore);
@@ -437,7 +444,7 @@ namespace Metalama.Aspects
                 builder.Advice.IntroduceMethod(builder.Target, nameof(IntroducedMethod), whenExists: OverrideStrategy.Ignore);
             }
 
-            if (!builder.Target.IsStatic && !builder.Target.IsSealed && builder.Target is not { TypeKind: TypeKind.Struct or TypeKind.RecordStruct} )
+            if (!builder.Target.IsStatic && !builder.Target.IsSealed && builder.Target is not { TypeKind: TypeKind.Struct or TypeKind.RecordStruct })
             {
                 builder.Advice.IntroduceMethod(builder.Target, nameof(IntroducedMethod_Virtual), whenExists: OverrideStrategy.Ignore);
             }
@@ -486,7 +493,7 @@ namespace Metalama.Aspects
     {
         public override void BuildAspect(IAspectBuilder<INamedType> builder)
         {
-            builder.Advice.ImplementInterface(builder.Target, typeof(IIntroducedInterface), whenExists: OverrideStrategy.Ignore );
+            builder.Advice.ImplementInterface(builder.Target, typeof(IIntroducedInterface), whenExists: OverrideStrategy.Ignore);
         }
 
         [InterfaceMember(IsExplicit = true)]
@@ -565,7 +572,7 @@ namespace Metalama.Aspects
                     return result;
                 }
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
                 AspectLog.Write($"Logging: caught exception {e.Message}");
                 throw;
@@ -619,8 +626,8 @@ namespace Metalama.Aspects
             AspectLog.Write("This is the introduction.");
             return meta.Proceed();
         }
-    }    
-    
+    }
+
     public class UninlineableOverrideAspect : OverrideMethodAspect
     {
         public override dynamic? OverrideMethod()
@@ -637,7 +644,7 @@ namespace Metalama.Aspects
             }
         }
     }
-    
+
     public class ForcedJumpOverrideAspect : OverrideMethodAspect
     {
         public override dynamic? OverrideMethod()
@@ -661,7 +668,7 @@ namespace Metalama.Aspects
 
     public class ParameterContract : ContractAspect
     {
-        public override void Validate( dynamic? value )
+        public override void Validate(dynamic? value)
         {
             AspectLog.Write($"Contract on {meta.Target.Parameter.Name}");
         }
@@ -669,7 +676,7 @@ namespace Metalama.Aspects
 
     public class FieldOrPropertyContract : ContractAspect
     {
-        public override void Validate( dynamic? value )
+        public override void Validate(dynamic? value)
         {
             AspectLog.Write($"Contract on {meta.Target.FieldOrPropertyOrIndexer.Name}");
         }
