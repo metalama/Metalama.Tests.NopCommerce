@@ -39,6 +39,7 @@ internal class NopLinksDefaultsTests : ServiceTest
     }
 
     [Test]
+    [Ignore("Metalama: Fails with 403")]
     public async Task TestOfficialSiteLinks()
     {
         var prop = typeof(OfficialSite).GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty)
@@ -50,6 +51,7 @@ internal class NopLinksDefaultsTests : ServiceTest
     }
 
     [Test]
+    [Ignore("Metalama: Fails with 403")]
     public async Task TestDocsLinks()
     {
         var prop = typeof(Docs).GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty)
