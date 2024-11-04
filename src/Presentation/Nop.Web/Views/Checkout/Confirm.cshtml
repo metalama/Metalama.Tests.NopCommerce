@@ -1,4 +1,5 @@
 ﻿@model CheckoutConfirmModel
+
 @{
     Layout = "_ColumnsOne";
 
@@ -18,7 +19,7 @@
         <div class="section confirm-order">
             <form asp-route="CheckoutConfirm" method="post" id="confirm-order-form">
                 <script asp-location="Footer">
-                    $(document).ready(function () {
+                    $(function() {
                         $('.confirm-order-next-step-button').on('click', function () {
                             //terms of service
                             var termOfServiceOk = true;
@@ -59,7 +60,7 @@
                             {
                                 <a class="read" id="read-terms">@T("Checkout.TermsOfService.Read")</a>
                                 <script asp-location="Footer">
-                                    $(document).ready(function() {
+                                    $(function() {
                                         $('#read-terms').on('click',
                                             function(e) {
                                                 e.preventDefault();
@@ -70,7 +71,7 @@
                             }
                             else
                             {
-                                <a class="read" id="read-terms" href="@Url.RouteUrl("Topic", new { SeName = await Html.GetTopicSeNameAsync("conditionsofuse") })">@T("Checkout.TermsOfService.Read")</a>
+                                <a class="read" id="read-terms" href="@Url.RouteTopicUrl("conditionsofuse")">@T("Checkout.TermsOfService.Read")</a>
                             }
                         </div>
                     }
@@ -87,6 +88,10 @@
                                 0);
                             });
                     </script>
+                    if (Model.DisplayCaptcha)
+                    {
+                        <nop-captcha />
+                    }
                 }
                 @if (Model.Warnings.Count > 0)
                 {
