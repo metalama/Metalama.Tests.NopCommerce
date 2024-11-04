@@ -1,5 +1,9 @@
-﻿@inject Nop.Services.Html.IHtmlFormatter htmlFormatter
-@model CustomerProductReviewsModel
+﻿@model CustomerProductReviewsModel
+
+@using Nop.Core.Domain.Catalog
+
+@inject Nop.Services.Html.IHtmlFormatter htmlFormatter
+
 @{
     Layout = "_ColumnsTwo";
 
@@ -18,6 +22,7 @@
         <h1>@T("Account.MyAccount") - @T("Account.CustomerProductReviews")</h1>
     </div>
     <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerProductReviewsTop, additionalData = Model })
         @if (Model.ProductReviews.Count > 0)
         {
             foreach (var review in Model.ProductReviews)
@@ -58,7 +63,7 @@
                         <div class="review-info">
                             <span class="user">
                                 <label>@T("Account.CustomerProductReviews.ProductReviewFor"):</label>
-                                <a href="@Url.RouteUrl("Product", new {SeName = review.ProductSeName})">@review.ProductName</a>
+                                <a href="@(Url.RouteUrl<Product>(new { SeName = review.ProductSeName }))">@review.ProductName</a>
 
                             </span>
                             <span class="separator">|</span>
@@ -96,4 +101,5 @@
             </div>
         }
     </div>
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CustomerProductReviewsBottom, additionalData = Model })
 </div>
