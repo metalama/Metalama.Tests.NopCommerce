@@ -31,7 +31,7 @@ internal class NotNullFabric : TransitiveProjectFabric
             benchmarkedMembersFractionInverse = 1;
         }
 
-        amender.Outbound
+        amender
             .SelectMany(p => p.AllTypes)
             .Where(t => GetStringHashCode(t.ToDisplayString(CodeDisplayFormat.FullyQualified)) % benchmarkedTypesFractionInverse == 0)
             .SelectMany(t => t.Members())

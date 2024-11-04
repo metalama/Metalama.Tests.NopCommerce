@@ -1,10 +1,10 @@
 {
   "sdk": {
-    "version": "8.0.200",
+    "version": "8.0.204",
     "rollForward": "latestFeature",
     "allowPrerelease": false
   },
   "msbuild-sdks": {
-    "PostSharp.Engineering.Sdk": "2023.2.129"
+    "PostSharp.Engineering.Sdk": "2023.2.136"
   }
 }
