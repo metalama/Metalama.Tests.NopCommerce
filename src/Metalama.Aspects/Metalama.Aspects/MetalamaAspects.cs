@@ -199,13 +199,17 @@ namespace Metalama.Aspects
             /* Fixed and working tests */
 
             // The field on this type is used as an out parameter, so it cannot be overridden.
-            static bool isNotSkipped(IField it) => it.DeclaringType.FullName != "Nop.Tests.Nop.Core.Tests.Infrastructure.ConcurrentTrieTests";
+            static bool isNotUsedAsOut(IField it) => it.DeclaringType.FullName != "Nop.Tests.Nop.Core.Tests.Infrastructure.ConcurrentTrieTests";
+
+            // #35565 - Overriding dynamic fields causes a debug assert.
+            static bool isNotDynamic(IField it) => it.Type.TypeKind != TypeKind.Dynamic;
 
             // FIXED: CSC : error LAMA0001: Unexpected exception occurred in Metalama: Exception of type 'Metalama.Framework.Engine.AssertionFailedException' was thrown.
             amender
                 .SelectMany(p =>
                     p.Types.SelectMany(t => t.Fields)
-                        .Where(isNotSkipped)
+                        .Where(isNotUsedAsOut)
+                        .Where(isNotDynamic)
                         .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
                         .Where(it => it is not IField { Writeability: Writeability.None })
                         .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
@@ -215,7 +219,8 @@ namespace Metalama.Aspects
             amender
                 .SelectMany(p =>
                     p.Types.SelectMany(t => t.Fields)
-                        .Where(isNotSkipped)
+                        .Where(isNotUsedAsOut)
+                        .Where(isNotDynamic)
                         .SelectMany(p => new[] { p.GetMethod!, p.SetMethod! }.Where(m => m != null))
                         .Where(m => !m.IsAbstract && !m.IsImplicitlyDeclared)
                         .Where(it => it is not IField { Writeability: Writeability.None })
@@ -226,7 +231,8 @@ namespace Metalama.Aspects
             amender
                 .SelectMany(p =>
                     p.Types.SelectMany(t => t.Fields)
-                        .Where(isNotSkipped)
+                        .Where(isNotUsedAsOut)
+                        .Where(isNotDynamic)
                         .Where(it => !it.IsAbstract && !it.IsImplicitlyDeclared)
                         .Where(it => it is not IField { Writeability: Writeability.None })
                         .Where(it => it.GetMethod!.GetIteratorInfo().EnumerableKind == EnumerableKind.None)
