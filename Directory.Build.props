@@ -5,20 +5,20 @@
     <RepoKind>GitHub</RepoKind>
   </PropertyGroup>
 
+  <Import Project="eng\Versions.props"/>
+  <Import Project="eng\Packaging.props"/>
   <Import Sdk="PostSharp.Engineering.Sdk" Project="BuildOptions.props"/>
+  <Import Sdk="PostSharp.Engineering.Sdk" Project="StrongName.props"/>
+  <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
 
   <PropertyGroup>
-    <LangVersion>12</LangVersion>
+    <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
+    <LangVersion>$(LangMaxVersion)</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <CompilerVisibleProperty Include="BenchmarkedTypesFractionInverse" />
     <CompilerVisibleProperty Include="BenchmarkedMembersFractionInverse" />
   </ItemGroup>
-
-  <Import Project="eng\Versions.props"/>
-  <Import Project="eng\Packaging.props"/>
-  <Import Sdk="PostSharp.Engineering.Sdk" Project="StrongName.props"/>
-  <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
 
 </Project>
