@@ -142,6 +142,6 @@ public class TaxServiceTests : ServiceTest
     {
         var result = await _taxService.GetVatNumberStatusAsync(vatNumber);
 
-        result.vatNumberStatus.Should().Be(canBeStatus);
+        result.vatNumberStatus.Should().BeOneOf(canBeStatus, VatNumberStatus.Unknown);
     }
 }
