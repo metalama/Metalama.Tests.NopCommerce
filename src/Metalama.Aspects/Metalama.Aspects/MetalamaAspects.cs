@@ -36,7 +36,7 @@ namespace Metalama.Aspects
     [CompileTime]
     public static class HelperExtensions
     {
-        public static void AddAspects<T>(this IAspectReceiver<T> aspectReceiver, params IAspect<T>[] aspects)
+        public static void AddAspects<T>(this IQuery<T> aspectReceiver, params IAspect<T>[] aspects)
             where T : class, IDeclaration
         {
             foreach (var aspect in aspects)
@@ -352,7 +352,7 @@ namespace Metalama.Aspects
                 }
                 );
 
-            return skippedTypes.Any(t => t == null || type.Is(t));
+            return skippedTypes.Any(t => t == null || type.IsConvertibleTo(t));
         }
     }
 
