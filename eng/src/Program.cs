@@ -10,7 +10,6 @@ using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Defin
 var product = new Product(MetalamaDependencies.NopCommerce)
 {
     Solutions = [new DotNetSolution("src\\NopCommerce.sln")],
-    Dependencies = [DevelopmentDependencies.PostSharpEngineering, MetalamaDependencies.Metalama],
 };
 
 return new EngineeringApp(product).Run(args);
