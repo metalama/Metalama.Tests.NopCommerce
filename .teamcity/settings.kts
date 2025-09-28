@@ -14,8 +14,9 @@ project {
     buildType(ReleaseBuild)
     buildType(PublicBuild)
     buildType(PublicDeployment)
+    buildType(DownstreamMerge)
 
-    buildTypesOrder = arrayListOf(DebugBuild,ReleaseBuild,PublicBuild,PublicDeployment)
+    buildTypesOrder = arrayListOf(DebugBuild,ReleaseBuild,PublicBuild,PublicDeployment,DownstreamMerge)
 
 }
 
@@ -36,7 +37,7 @@ object DebugBuild : BuildType({
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaTestsNopCommerce"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
     }
 
     steps {
@@ -79,7 +80,7 @@ object DebugBuild : BuildType({
             verbose = true
         }
     commitStatusPublisher {
-        vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+        vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         publisher = github {
             githubUrl = "https://api.github.com"
             authType = personalToken {
@@ -88,12 +89,12 @@ object DebugBuild : BuildType({
         }
     }
 pullRequests {
-       vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+       vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         provider = github {
             authType = token {
                 token = "%env.GITHUB_TOKEN%"
             }
-           filterTargetBranch = "+:refs/heads/dev/2025.0"
+           filterTargetBranch = "+:refs/heads/dev/2025.1"
            filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
        }
    }
@@ -104,11 +105,34 @@ pullRequests {
     triggers {
         vcs {
             watchChangesInDependencies = true
-            branchFilter = "+:dev/2025.0"
+            branchFilter = "+:dev/2025.1"
             // Build will not trigger automatically if the commit message contains comment value.
             triggerRules = "-:comment=<<VERSION_BUMP>>|<<DEPENDENCIES_UPDATED>>:**"
         }
     }
+
+    dependencies {
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_DebugBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/publish/private/**/*=>dependencies/Metalama"
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_MetalamaCompiler_ReleaseBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/packages/Release/Shipping/**/*=>dependencies/Metalama.Compiler"
+            }
+        }
+     }
 
 })
 
@@ -129,7 +153,7 @@ object ReleaseBuild : BuildType({
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaTestsNopCommerce"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
     }
 
     steps {
@@ -172,7 +196,7 @@ object ReleaseBuild : BuildType({
             verbose = true
         }
     commitStatusPublisher {
-        vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+        vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         publisher = github {
             githubUrl = "https://api.github.com"
             authType = personalToken {
@@ -181,18 +205,41 @@ object ReleaseBuild : BuildType({
         }
     }
 pullRequests {
-       vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+       vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         provider = github {
             authType = token {
                 token = "%env.GITHUB_TOKEN%"
             }
-           filterTargetBranch = "+:refs/heads/dev/2025.0"
+           filterTargetBranch = "+:refs/heads/dev/2025.1"
            filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
        }
    }
 
 
     }
+
+    dependencies {
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_ReleaseBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/publish/private/**/*=>dependencies/Metalama"
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_MetalamaCompiler_ReleaseBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/packages/Release/Shipping/**/*=>dependencies/Metalama.Compiler"
+            }
+        }
+     }
 
 })
 
@@ -213,7 +260,7 @@ object PublicBuild : BuildType({
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaTestsNopCommerce"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
     }
 
     steps {
@@ -256,7 +303,7 @@ object PublicBuild : BuildType({
             verbose = true
         }
     commitStatusPublisher {
-        vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+        vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         publisher = github {
             githubUrl = "https://api.github.com"
             authType = personalToken {
@@ -265,18 +312,41 @@ object PublicBuild : BuildType({
         }
     }
 pullRequests {
-       vcsRootExtId = "Metalama_Metalama20250_MetalamaTestsNopCommerce"
+       vcsRootExtId = "Metalama_Metalama20251_MetalamaTestsNopCommerce"
         provider = github {
             authType = token {
                 token = "%env.GITHUB_TOKEN%"
             }
-           filterTargetBranch = "+:refs/heads/dev/2025.0"
+           filterTargetBranch = "+:refs/heads/dev/2025.1"
            filterAuthorRole = PullRequests.GitHubRoleFilter.EVERYBODY
        }
    }
 
 
     }
+
+    dependencies {
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_PublicBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/publish/private/**/*=>dependencies/Metalama"
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_MetalamaCompiler_PublicBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/packages/Release/Shipping/**/*=>dependencies/Metalama.Compiler"
+            }
+        }
+     }
 
 })
 
@@ -292,7 +362,7 @@ object PublicDeployment : BuildType({
     }
 
     vcs {
-        root(AbsoluteId("Metalama_Metalama20250_MetalamaTestsNopCommerce"))
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
     }
 
     steps {
@@ -319,6 +389,31 @@ object PublicDeployment : BuildType({
     }
 
     dependencies {
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_PublicBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/publish/private/**/*=>dependencies/Metalama"
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_PublicDeployment")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_MetalamaCompiler_PublicBuild")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+
+            artifacts {
+                cleanDestination = true
+                artifactRules = "+:artifacts/packages/Release/Shipping/**/*=>dependencies/Metalama.Compiler"
+            }
+        }
         dependency(PublicBuild) {
             snapshot {
                      onDependencyFailure = FailureAction.FAIL_TO_START
@@ -327,6 +422,66 @@ object PublicDeployment : BuildType({
             artifacts {
                 cleanDestination = true
                 artifactRules = "+:artifacts/publish/public/**/*=>artifacts/publish/public\n+:artifacts/publish/private/**/*=>artifacts/publish/private"
+            }
+        }
+     }
+
+})
+
+object DownstreamMerge : BuildType({
+
+    name = "Downstream Merge"
+
+    params {
+        text("DownstreamMerge.Arguments", "", label = "Build.ps1 Arguments", description = "Arguments to append to the 'Merge downstream' build step.", allowEmpty = true)
+        param("DownstreamMerge.Timeout", "15")
+    }
+
+    vcs {
+        root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+    }
+
+    steps {
+        powerShell {
+            name = "Merge downstream"
+            id = "DownstreamMerge"
+            scriptMode = file {
+                path = "Build.ps1"
+            }
+            noProfile = false
+            scriptArgs = "tools git merge-downstream %DownstreamMerge.Arguments% --timeout %DownstreamMerge.Timeout%"
+        }
+    }
+
+    requirements {
+        equals("env.BuildAgentType", "caravela04cloud")
+    }
+
+    features {
+        swabra {
+            lockingProcesses = Swabra.LockingProcessPolicy.KILL
+            verbose = true
+        }
+    }
+
+    triggers {
+        vcs {
+            watchChangesInDependencies = true
+            branchFilter = "+:dev/2025.1"
+            // Build will not trigger automatically if the commit message contains comment value.
+            triggerRules = "-:comment=<<VERSION_BUMP>>|<<DEPENDENCIES_UPDATED>>:**"
+        }
+    }
+
+    dependencies {
+        dependency(DebugBuild) {
+            snapshot {
+                     onDependencyFailure = FailureAction.FAIL_TO_START
+            }
+        }
+        dependency(AbsoluteId("Metalama_Metalama20251_Metalama_DownstreamMerge")) {
+            snapshot {
+                     onDependencyFailure = FailureAction.ADD_PROBLEM
             }
         }
      }
