@@ -206,6 +206,12 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 src/packages/*
 
 # Metalama
-eng/*.g.props
+*.g.props
+*.g.ps1
+*.g.json
+
 artifacts/
 /Metalama.Tests.NopCommerce.Import.props
+**/.idea/copilot.data.*
+global.json
+nuget.config
