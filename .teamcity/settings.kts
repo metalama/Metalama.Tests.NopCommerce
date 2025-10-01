@@ -17,15 +17,6 @@ project {
     buildType(PublicDeployment)
     buildType(DownstreamMerge)
 
-    features {
-         untrustedBuildsSettings {
-             id = "UNTRUSTED_BUILD_SETTINGS_EXT"
-             defaultAction = UntrustedBuildsSettings.DefaultAction.APPROVE
-             enableLog = true
-             approvalRules = "group:UNTRUSTED_BUILD_APPROVERS:1"
-         }
-     }
-
     buildTypesOrder = arrayListOf(DebugBuild,ReleaseBuild,PublicBuild,PublicDeployment,DownstreamMerge)
 
 }
@@ -48,6 +39,7 @@ object DebugBuild : BuildType({
 
     vcs {
         root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+     checkoutMode = CheckoutMode.ON_AGENT
     }
 
     steps {
@@ -107,6 +99,8 @@ pullRequests {
         vcs {
             watchChangesInDependencies = true
             branchFilter = "+:dev/2025.1"
+             quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
+             quietPeriod = 7200
             // Build will not trigger automatically if the commit message contains comment value.
             triggerRules = "-:comment=<<VERSION_BUMP>>|<<DEPENDENCIES_UPDATED>>:**"
         }
@@ -155,6 +149,7 @@ object ReleaseBuild : BuildType({
 
     vcs {
         root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+     checkoutMode = CheckoutMode.ON_AGENT
     }
 
     steps {
@@ -253,6 +248,7 @@ object PublicBuild : BuildType({
 
     vcs {
         root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+     checkoutMode = CheckoutMode.ON_AGENT
     }
 
     steps {
@@ -346,6 +342,7 @@ object PublicDeployment : BuildType({
 
     vcs {
         root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+     checkoutMode = CheckoutMode.ON_AGENT
     }
 
     steps {
@@ -431,6 +428,7 @@ object DownstreamMerge : BuildType({
 
     vcs {
         root(AbsoluteId("Metalama_Metalama20251_MetalamaTestsNopCommerce"))
+     checkoutMode = CheckoutMode.ON_AGENT
     }
 
     steps {
@@ -462,15 +460,6 @@ object DownstreamMerge : BuildType({
         swabra {
             lockingProcesses = Swabra.LockingProcessPolicy.KILL
             verbose = true
-        }
-    }
-
-    triggers {
-        vcs {
-            watchChangesInDependencies = true
-            branchFilter = "+:dev/2025.1"
-            // Build will not trigger automatically if the commit message contains comment value.
-            triggerRules = "-:comment=<<VERSION_BUMP>>|<<DEPENDENCIES_UPDATED>>:**"
         }
     }
 
