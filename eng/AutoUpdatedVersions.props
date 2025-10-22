@@ -2,9 +2,9 @@
 <Project>
 
     <PropertyGroup>
-        <MetalamaVersion>2025.1.15</MetalamaVersion>
+        <MetalamaVersion>2025.1.16</MetalamaVersion>
         <MetalamaBackstageVersion></MetalamaBackstageVersion>
-        <MetalamaCompilerVersion>2025.1.9</MetalamaCompilerVersion>
+        <MetalamaCompilerVersion>2025.1.10</MetalamaCompilerVersion>
         <MetalamaFrameworkRunTimeVersion></MetalamaFrameworkRunTimeVersion>
     <MetalamaTestsNopCommerceReleaseVersion>4.5.0</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.0</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
 
