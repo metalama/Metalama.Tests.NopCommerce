@@ -12,8 +12,7 @@
   <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
 
   <PropertyGroup>
-    <!-- The latest version supported by Metalama Compiler may be higher that the latest version supported by Metalama Framework. -->
-    <LangVersion>$(LangMaxVersion)</LangVersion>
+    <LangVersion>13.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
