@@ -14,6 +14,7 @@ internal class NotNullFabric : TransitiveProjectFabric
         static IEnumerable<IMethod> getMethods(IMember member) => member switch
         {
             IMethod method => [method],
+            IFieldOrProperty {Writeability: Writeability.None} => [], 
             IHasAccessors hasAccessors => hasAccessors.Accessors,
             IConstructor => [],
             _ => throw new NotSupportedException($"Unexpected member '{member}'")
