@@ -7,14 +7,13 @@ using Metalama.Framework.Fabrics;
 
 namespace Metalama.Aspects;
 
-internal class NotNullFabric : TransitiveProjectFabric
+internal class AddLoggingFabric : TransitiveProjectFabric
 {
     public override void AmendProject(IProjectAmender amender)
     {
         static IEnumerable<IMethod> getMethods(IMember member) => member switch
         {
             IMethod method => [method],
-            // IFieldOrProperty {Writeability: Writeability.None} => [], 
             IHasAccessors hasAccessors => hasAccessors.Accessors,
             IConstructor => [],
             _ => throw new NotSupportedException($"Unexpected member '{member}'")
@@ -62,7 +61,7 @@ internal class NotNullFabric : TransitiveProjectFabric
     }
 }
 
-internal class LogAspect : OverrideMethodAspect
+public class LogAspect : OverrideMethodAspect
 {
     public override dynamic? OverrideMethod()
     {

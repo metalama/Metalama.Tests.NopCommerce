@@ -9,6 +9,10 @@ namespace Nop.Tests.Nop.Core.Tests.Infrastructure;
 [TestFixture]
 public class ConcurrentTrieTests
 {
+
+#if BENCHMARK
+        [Metalama.Framework.Aspects.ExcludeAspect(typeof(Metalama.Aspects.LogAspect))]
+#endif      
     private IConcurrentCollection<int> _sut;
 
     private static void Profile(Action action)

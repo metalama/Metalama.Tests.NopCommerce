@@ -3,7 +3,9 @@
   <PropertyGroup>
     <RepoDirectory>$(MSBuildThisFileDirectory)</RepoDirectory>
     <RepoKind>GitHub</RepoKind>
+    <DefineConstants Condition=" '$(ExtraConstants)' != '' ">$(DefineConstants);$(ExtraConstants)</DefineConstants>
   </PropertyGroup>
+
 
   <Import Project="eng\Versions.props"/>
   <Import Project="eng\Packaging.props"/>

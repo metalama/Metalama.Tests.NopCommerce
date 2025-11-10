@@ -642,6 +642,10 @@ public partial class ConcurrentTrie<TValue> : IConcurrentCollection<TValue>
 
         // used to avoid keeping a separate boolean flag that would use another byte per node
         protected static readonly ValueWrapper _deleted = new(default);
+
+#if BENCHMARK
+        [Metalama.Framework.Aspects.ExcludeAspect(typeof(Metalama.Aspects.LogAspect))]
+#endif        
         protected volatile ValueWrapper _value;
 
         #endregion
