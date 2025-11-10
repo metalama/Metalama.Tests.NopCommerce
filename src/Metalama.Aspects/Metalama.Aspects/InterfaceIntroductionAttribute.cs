@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
 namespace Metalama.Aspects;
@@ -56,3 +58,5 @@ public class InterfaceIntroductionAttribute : TypeAspect
     [InterfaceMember(IsExplicit = true)]
     public string? AutoProperty { get; set; } = default;
 }
+
+#endif

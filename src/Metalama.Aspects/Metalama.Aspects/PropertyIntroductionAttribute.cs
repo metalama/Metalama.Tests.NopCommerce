@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
 namespace Metalama.Aspects;
@@ -36,3 +38,5 @@ public class PropertyIntroductionAttribute : TypeAspect
     [Template]
     public static int IntroducedStaticProperty { get; set; } = 42;
 }
+
+#endif

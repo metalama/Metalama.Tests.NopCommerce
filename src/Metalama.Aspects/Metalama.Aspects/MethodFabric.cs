@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿#if !BENCHMARK
+
+using System.Text.RegularExpressions;
 using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Fabrics;
@@ -74,3 +76,5 @@ public class MethodFabric : TransitiveProjectFabric
         #endregion
     }
 }
+
+#endif

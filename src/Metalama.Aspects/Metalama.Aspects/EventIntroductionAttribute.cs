@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
 namespace Metalama.Aspects;
@@ -11,12 +13,12 @@ public class EventIntroductionAttribute : TypeAspect
         {
             if (!builder.Target.AllMembers().Any(m => m.Name == nameof(IntroducedEvent)))
             {
-                builder.IntroduceEvent( nameof(IntroducedEvent), whenExists: OverrideStrategy.Ignore);
+                builder.IntroduceEvent(nameof(IntroducedEvent), whenExists: OverrideStrategy.Ignore);
             }
 
             if (!builder.Target.AllMembers().Any(m => m.Name == nameof(IntroducedEventField)))
             {
-                builder.IntroduceEvent( nameof(IntroducedEventField), whenExists: OverrideStrategy.Ignore);
+                builder.IntroduceEvent(nameof(IntroducedEventField), whenExists: OverrideStrategy.Ignore);
             }
         }
     }
@@ -36,3 +38,5 @@ public class EventIntroductionAttribute : TypeAspect
     [Template]
     public event EventHandler IntroducedEventField;
 }
+
+#endif
