@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Fabrics;
 
 namespace Metalama.Aspects;
@@ -18,3 +20,5 @@ public class EventsFabric : TransitiveProjectFabric
             .AddAspects(new LoggingAspect(), new ForcedJumpOverrideAspect(), new UninlineableOverrideAspect());
     }
 }
+
+#endif

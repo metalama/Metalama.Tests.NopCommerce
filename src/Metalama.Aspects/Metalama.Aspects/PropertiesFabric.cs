@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 using Metalama.Framework.Fabrics;
 
@@ -62,3 +64,5 @@ public class PropertiesFabric : TransitiveProjectFabric
         #endregion
     }
 }
+
+#endif

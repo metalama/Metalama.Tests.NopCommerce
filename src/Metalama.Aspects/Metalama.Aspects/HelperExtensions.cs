@@ -24,6 +24,8 @@ using Metalama.Framework.Fabrics;
     typeof(PropertyIntroductionAttribute),
     typeof(InterfaceIntroductionAttribute))]
 
+#endif
+
 
 namespace Metalama.Aspects
 {
@@ -43,5 +45,3 @@ namespace Metalama.Aspects
   
     
 }
-
-#endif

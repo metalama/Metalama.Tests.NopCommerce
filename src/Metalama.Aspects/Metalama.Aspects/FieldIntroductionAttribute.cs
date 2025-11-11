@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 using Metalama.Framework.Code;
 
 namespace Metalama.Aspects;
@@ -26,3 +28,5 @@ public class FieldIntroductionAttribute : TypeAspect
     [Template]
     public static int IntroducedField_Static = 42;
 }
+
+#endif

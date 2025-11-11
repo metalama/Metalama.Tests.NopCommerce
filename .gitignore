@@ -215,3 +215,4 @@ artifacts/
 **/.idea/copilot.data.*
 global.json
 nuget.config
+*.binlog

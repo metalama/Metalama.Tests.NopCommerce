@@ -1,4 +1,6 @@
-﻿using Metalama.Framework.Aspects;
+﻿#if !BENCHMARK
+
+using Metalama.Framework.Aspects;
 
 namespace Metalama.Aspects;
 
@@ -18,3 +20,5 @@ public class ForcedJumpOverrideAspect : OverrideMethodAspect
         return x;
     }
 }
+
+#endif
