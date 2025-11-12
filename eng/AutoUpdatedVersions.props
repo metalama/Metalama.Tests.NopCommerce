@@ -6,6 +6,6 @@
         <MetalamaBackstageVersion></MetalamaBackstageVersion>
         <MetalamaCompilerVersion>2026.0.4-rc</MetalamaCompilerVersion>
         <MetalamaFrameworkRunTimeVersion></MetalamaFrameworkRunTimeVersion>
-    <MetalamaTestsNopCommerceReleaseVersion>4.5.2-rc</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.2</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
+    <MetalamaTestsNopCommerceReleaseVersion>4.5.3-rc</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.3</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
 
 </Project>
