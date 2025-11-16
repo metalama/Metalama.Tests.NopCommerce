@@ -134,6 +134,7 @@ public class Benchmark
         ["ExtraConstants"] = "BENCHMARK"
     });
 
+    [Benchmark]
     public Task WithBareMetalama() => RunDotnetBuild(SOLUTION, new Dictionary<string, string>
     {
         ["MetalamaEnabled"] = "true",
