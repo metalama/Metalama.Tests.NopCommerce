@@ -98,7 +98,7 @@ public class Benchmark
     }
 
     private static Task RunDotnetBuild(string project, Dictionary<string, string> properties)
-        => RunProcess("dotnet", ["build", Path.Combine(_repoRoot, project), .. properties.Select(p => $"-p:{p.Key}={p.Value}")]);
+        => RunProcess("dotnet", ["build", Path.Combine(_repoRoot, project), .. properties.Select(p => $"-p:{p.Key}=\"{p.Value}\"")]);
 
     private static Task RunDotnetClean(string project)
         => RunProcess("dotnet", ["clean", Path.Combine(_repoRoot, project)]);
