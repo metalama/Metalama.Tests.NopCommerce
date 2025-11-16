@@ -103,6 +103,9 @@ public class Benchmark
     private static Task RunDotnetClean(string project)
         => RunProcess("dotnet", ["clean", Path.Combine(_repoRoot, project)]);
 
+    private static Task ShutdownBuildServer()
+        => RunProcess("dotnet", ["build-server", "shutdown"]);
+
     private static string FindRepoRoot()
     {
         var dir = Environment.CurrentDirectory;
@@ -134,12 +137,21 @@ public class Benchmark
         ["ExtraConstants"] = "BENCHMARK"
     });
 
+    [GlobalCleanup(Target = nameof(WithoutMetalama))]
+    public void CleanupWithoutMetalama() => ShutdownBuildServer().Wait();
+
+    [IterationSetup(Target = nameof(WithBareMetalama))]
+    public void SetupWithBareMetalama() => RunDotnetClean(SOLUTION).Wait();
+
     [Benchmark]
     public Task WithBareMetalama() => RunDotnetBuild(SOLUTION, new Dictionary<string, string>
     {
         ["MetalamaEnabled"] = "true",
         ["ExtraConstants"] = "BENCHMARK;NO_BENCHMARK_FABRIC"
     });
+
+    [GlobalCleanup(Target = nameof(WithBareMetalama))]
+    public void CleanupWithBareMetalama() => ShutdownBuildServer().Wait();
 
     [IterationSetup(Target = nameof(WithMetalama))]
     public void SetupWithMetalama() => RunDotnetClean(SOLUTION).Wait();
@@ -183,4 +195,7 @@ public class Benchmark
             ["BenchmarkedMembersFractionInverse"] = benchmarkedMembersFractionInverse.ToString()
         });
     }
+
+    [GlobalCleanup(Target = nameof(WithMetalama))]
+    public void CleanupWithMetalama() => ShutdownBuildServer().Wait();
 }
