@@ -1,9 +1,44 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Mathematics;
 using BenchmarkDotNet.Running;
+using Perfolizer.Mathematics.Common;
 
-BenchmarkRunner.Run<Benchmark>();
+IConfig? config = null;
+Job? job = null;
+
+// Parse command-line arguments
+foreach (var arg in args)
+{
+    if (arg.StartsWith("-lc", StringComparison.OrdinalIgnoreCase))
+    {
+        job = (job ?? Job.Default);
+        job.Accuracy.MaxRelativeError = 0.05;  // 5% threshold allows fewer iterations
+        job.Run.WarmupCount = 1;
+        job.Run.LaunchCount = 1;
+        job.Run.MinIterationCount = 5;         // Minimum 5 iterations for basic statistics
+        job.Run.MaxIterationCount = 20;        // Cap at 20 to prevent excessive runs
+        job.Run.InvocationCount = 1;           // Call benchmark once per iteration (no overhead calculation)
+        job.Run.UnrollFactor = 1;              // Don't unroll loops
+    }
+    else if (arg.StartsWith("-hc", StringComparison.OrdinalIgnoreCase))
+    {
+        job = (job ?? Job.Default);
+        job.Accuracy.MaxRelativeError = 0.005; // 0.5% threshold for high confidence measurements
+    }
+}
+
+// If configuration was provided, create config with the job
+if (job != null)
+{
+    config = ManualConfig.CreateEmpty().WithOptions(ConfigOptions.Default).AddJob(job);
+}
+
+BenchmarkRunner.Run<Benchmark>(config);
 
 public class Benchmark
 {
@@ -91,6 +126,12 @@ public class Benchmark
     {
         ["MetalamaEnabled"] = "false",
         ["ExtraConstants"] = "BENCHMARK"
+    });
+
+    public Task WithBareMetalama() => RunDotnetBuild(SOLUTION, new Dictionary<string, string>
+    {
+        ["MetalamaEnabled"] = "true",
+        ["ExtraConstants"] = "BENCHMARK;NO_BENCHMARK_FABRIC"
     });
 
     [IterationSetup(Target = nameof(WithMetalama))]

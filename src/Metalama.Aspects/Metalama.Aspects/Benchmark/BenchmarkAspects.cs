@@ -7,6 +7,8 @@ using Metalama.Framework.Fabrics;
 
 namespace Metalama.Aspects;
 
+#if !NO_BENCHMARK_FABRIC
+
 internal class AddLoggingFabric : TransitiveProjectFabric
 {
     public override void AmendProject(IProjectAmender amender)
@@ -60,6 +62,8 @@ internal class AddLoggingFabric : TransitiveProjectFabric
         }
     }
 }
+
+#endif
 
 public class LogAspect : OverrideMethodAspect
 {
