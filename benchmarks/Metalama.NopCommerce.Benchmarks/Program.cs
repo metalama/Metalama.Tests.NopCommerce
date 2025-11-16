@@ -16,7 +16,7 @@ foreach (var arg in args)
 {
     if (arg.StartsWith("-lc", StringComparison.OrdinalIgnoreCase))
     {
-        job = (job ?? Job.Default);
+        job = (job ?? Job.Default).UnfreezeCopy();
         job.Accuracy.MaxRelativeError = 0.05;  // 5% threshold allows fewer iterations
         job.Run.WarmupCount = 1;
         job.Run.LaunchCount = 1;
@@ -27,7 +27,7 @@ foreach (var arg in args)
     }
     else if (arg.StartsWith("-hc", StringComparison.OrdinalIgnoreCase))
     {
-        job = (job ?? Job.Default);
+        job = (job ?? Job.Default).UnfreezeCopy();
         job.Accuracy.MaxRelativeError = 0.005; // 0.5% threshold for high confidence measurements
     }
 }
