@@ -4,6 +4,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Mathematics;
 using BenchmarkDotNet.Running;
 using Perfolizer.Mathematics.Common;
@@ -35,7 +36,12 @@ foreach (var arg in args)
 // If configuration was provided, create config with the job
 if (job != null)
 {
-    config = ManualConfig.CreateEmpty().WithOptions(ConfigOptions.Default).AddJob(job);
+    config = ManualConfig.CreateEmpty()
+        .AddLogger(ConsoleLogger.Default)
+        .AddAnalyser(DefaultConfig.Instance.GetAnalysers().ToArray())
+        .AddExporter(DefaultConfig.Instance.GetExporters().ToArray())
+        .AddColumnProvider(DefaultConfig.Instance.GetColumnProviders().ToArray())
+        .AddJob(job);
 }
 
 BenchmarkRunner.Run<Benchmark>(config);
