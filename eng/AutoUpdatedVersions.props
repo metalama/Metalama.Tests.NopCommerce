@@ -4,8 +4,8 @@
     <PropertyGroup>
         <MetalamaVersion>2026.0.6-rc</MetalamaVersion>
         <MetalamaBackstageVersion></MetalamaBackstageVersion>
-        <MetalamaCompilerVersion>2026.0.5-rc</MetalamaCompilerVersion>
+        <MetalamaCompilerVersion>2026.0.6-rc</MetalamaCompilerVersion>
         <MetalamaFrameworkRunTimeVersion></MetalamaFrameworkRunTimeVersion>
-    <MetalamaTestsNopCommerceReleaseVersion>4.5.5-rc</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.5</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
+    <MetalamaTestsNopCommerceReleaseVersion>4.5.6-rc</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.6</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
 
 </Project>
