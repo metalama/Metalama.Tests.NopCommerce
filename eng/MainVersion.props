@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <MainVersion>4.5.9</MainVersion>
+        <MainVersion>4.5.10</MainVersion>
         <PackageVersionSuffix>-rc</PackageVersionSuffix>
     </PropertyGroup>
 </Project>
