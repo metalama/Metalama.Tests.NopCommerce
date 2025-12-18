@@ -25,7 +25,7 @@ public class FieldsFabric : TransitiveProjectFabric
                 p.Types.SelectMany(t => t.Fields)
                     .Where(isNotUsedAsOut)
                     .Where(isNotDynamic)
-                    .Where(it => it is { IsAbstract: false, IsImplicitlyDeclared: false })
+                    .Where(it => it is { IsAbstract: false, IsImplicitlyDeclared: false, Writeability: not Writeability.None })
                     .Where(it => it is not IField { Writeability: Writeability.None })
                     .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
             .AddAspect<OverridePropertyAttribute>();
@@ -36,7 +36,8 @@ public class FieldsFabric : TransitiveProjectFabric
                 p.Types.SelectMany(t => t.Fields)
                     .Where(isNotUsedAsOut)
                     .Where(isNotDynamic)
-                    .SelectMany(p => new[] { p.GetMethod!, p.SetMethod! }.Where(m => m != null))
+                    .Where(f => f.Writeability is not Writeability.None )
+                    .SelectMany(p => new[] { p.GetMethod!, p.SetMethod! }.Where(m => m != null! ))
                     .Where(m => m is { IsAbstract: false, IsImplicitlyDeclared: false })
                     .Where(it => it is not IField { Writeability: Writeability.None })
                     .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
@@ -48,15 +49,12 @@ public class FieldsFabric : TransitiveProjectFabric
                 p.Types.SelectMany(t => t.Fields)
                     .Where(isNotUsedAsOut)
                     .Where(isNotDynamic)
-                    .Where(it => it is { IsAbstract: false, IsImplicitlyDeclared: false })
+                    .Where(it => it is { IsAbstract: false, IsImplicitlyDeclared: false, Writeability: not Writeability.None })
                     .Where(it => it is not IField { Writeability: Writeability.None })
                     .Where(it => it.GetMethod!.GetIteratorInfo().EnumerableKind == EnumerableKind.None)
                     .Where(it => it.DeclaringType is not { TypeKind: TypeKind.Enum or TypeKind.Interface }))
             .AddAspect<FieldOrPropertyContract>();
 
-        #endregion
-
-        #region errors
         #endregion
     }
 }
