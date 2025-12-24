@@ -96,18 +96,18 @@ public class Benchmark
     [IterationSetup(Target = nameof(WithMetalama))]
     public void SetupWithMetalama() => RunDotnetClean(SOLUTION).Wait();
 
-    [Arguments(1, 10)]
+  /*  [Arguments(1, 10)]
     [Arguments(1, 50)]
-    [Arguments(1, 100)]
+    [Arguments(1, 100)]*/
     [Arguments(10, 10)]
-    [Arguments(10, 50)]
+/*    [Arguments(10, 50)]
     [Arguments(10, 100)]
     [Arguments(50, 10)]
     [Arguments(50, 50)]
     [Arguments(50, 100)]
     [Arguments(100, 10)]
     [Arguments(100, 50)]
-    [Arguments(100, 100)]
+    [Arguments(100, 100)] */
     [Benchmark]
     public Task WithMetalama(int benchmarkedTypesPercentage, int benchmarkedMembersPercentage)
     {
