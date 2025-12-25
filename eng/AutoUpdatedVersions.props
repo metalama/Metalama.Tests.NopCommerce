@@ -1,11 +1,11 @@
-
+﻿
 <Project>
 
     <PropertyGroup>
-        <MetalamaVersion>2026.0.10-rc</MetalamaVersion>
-        <MetalamaBackstageVersion></MetalamaBackstageVersion>
-        <MetalamaCompilerVersion>2026.0.6-rc</MetalamaCompilerVersion>
-        <MetalamaFrameworkRunTimeVersion></MetalamaFrameworkRunTimeVersion>
-    <MetalamaTestsNopCommerceReleaseVersion>4.5.11-rc</MetalamaTestsNopCommerceReleaseVersion><MetalamaTestsNopCommerceReleaseMainVersion>4.5.11</MetalamaTestsNopCommerceReleaseMainVersion></PropertyGroup>
+        <MetalamaVersion Condition="'$(MetalamaVersion)'==''">2026.0.10-rc</MetalamaVersion>
+        <MetalamaCompilerVersion Condition="'$(MetalamaVersion)'==''">2026.0.6-rc</MetalamaCompilerVersion>
+        <MetalamaTestsNopCommerceReleaseVersion>4.5.11-rc</MetalamaTestsNopCommerceReleaseVersion>
+        <MetalamaTestsNopCommerceReleaseMainVersion>4.5.11</MetalamaTestsNopCommerceReleaseMainVersion>
+    </PropertyGroup>
 
 </Project>

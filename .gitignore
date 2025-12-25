@@ -216,3 +216,5 @@ artifacts/
 global.json
 nuget.config
 *.binlog
+benchmarks/Metalama.NopCommerce.Benchmarks/results
+eng/docker-context/claude.json

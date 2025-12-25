@@ -36,6 +36,7 @@ internal class AddLoggingFabric : TransitiveProjectFabric
             .Where(t => GetStringHashCode(t.ToDisplayString(CodeDisplayFormat.FullyQualified)) % benchmarkedTypesFractionInverse == 0)
             .SelectMany(t => t.Members())
             .SelectMany(getMethods)
+            .Where( m => !m.IsImplicitlyDeclared )
             .Where(m => GetStringHashCode(m.ToDisplayString(CodeDisplayFormat.FullyQualified)) % benchmarkedMembersFractionInverse == 0)
             .AddAspectIfEligible<LogAspect>();
     }
