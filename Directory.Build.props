@@ -18,8 +18,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <CompilerVisibleProperty Include="BenchmarkedTypesFractionInverse" />
-    <CompilerVisibleProperty Include="BenchmarkedMembersFractionInverse" />
+    <CompilerVisibleProperty Include="BenchmarkedTypesPercentage" />
+    <CompilerVisibleProperty Include="BenchmarkedMembersPercentage" />
   </ItemGroup>
 
 </Project>

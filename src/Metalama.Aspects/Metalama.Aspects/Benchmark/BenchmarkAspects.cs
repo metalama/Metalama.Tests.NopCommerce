@@ -19,25 +19,25 @@ internal class AddLoggingFabric : TransitiveProjectFabric
             _ => throw new NotSupportedException($"Unexpected member '{member}'")
         };
 
-        if (!amender.Project.TryGetProperty("BenchmarkedTypesFractionInverse", out var benchmarkedTypesFractionInverseString)
-            || !int.TryParse(benchmarkedTypesFractionInverseString, out var benchmarkedTypesFractionInverse))
+        if (!amender.Project.TryGetProperty("BenchmarkedTypesPercentage", out var benchmarkedTypesPercentageString)
+            || !int.TryParse(benchmarkedTypesPercentageString, out var benchmarkedTypesPercentage))
         {
-            benchmarkedTypesFractionInverse = 1;
+            benchmarkedTypesPercentage = 100;
         }
 
-        if (!amender.Project.TryGetProperty("BenchmarkedMembersFractionInverse", out var benchmarkedMembersFractionInverseString)
-            || !int.TryParse(benchmarkedMembersFractionInverseString, out var benchmarkedMembersFractionInverse))
+        if (!amender.Project.TryGetProperty("BenchmarkedMembersPercentage", out var benchmarkedMembersPercentageString)
+            || !int.TryParse(benchmarkedMembersPercentageString, out var benchmarkedMembersPercentage))
         {
-            benchmarkedMembersFractionInverse = 1;
+            benchmarkedMembersPercentage = 100;
         }
 
         amender
             .SelectMany(p => p.AllTypes)
-            .Where(t => GetStringHashCode(t.ToDisplayString(CodeDisplayFormat.FullyQualified)) % benchmarkedTypesFractionInverse == 0)
+            .Where(t => Math.Abs(GetStringHashCode(t.ToDisplayString(CodeDisplayFormat.FullyQualified))) % 100 < benchmarkedTypesPercentage)
             .SelectMany(t => t.Members())
             .SelectMany(getMethods)
             .Where( m => !m.IsImplicitlyDeclared )
-            .Where(m => GetStringHashCode(m.ToDisplayString(CodeDisplayFormat.FullyQualified)) % benchmarkedMembersFractionInverse == 0)
+            .Where(m => Math.Abs(GetStringHashCode(m.ToDisplayString(CodeDisplayFormat.FullyQualified))) % 100 < benchmarkedMembersPercentage)
             .AddAspectIfEligible<LogAspect>();
     }
 

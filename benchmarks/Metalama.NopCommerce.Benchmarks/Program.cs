@@ -22,16 +22,11 @@ public class Benchmark
 
         private static string GetArtifactsPath()
         {
-            var baseDir = Path.Combine(Environment.CurrentDirectory, "results");
+            var baseDir = Path.Combine(Benchmark.FindRepoRoot(), "benchmarks", "results");
             Directory.CreateDirectory(baseDir);
 
-            var runNumber = 1;
-            while (Directory.Exists(Path.Combine(baseDir, runNumber.ToString("D2"))))
-            {
-                runNumber++;
-            }
-
-            var artifactsPath = Path.Combine(baseDir, runNumber.ToString("D2"));
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm");
+            var artifactsPath = Path.Combine(baseDir, timestamp);
             Directory.CreateDirectory(artifactsPath);
             return artifactsPath;
         }
@@ -116,6 +111,27 @@ public class Benchmark
 
     private const string SOLUTION = @"src\NopCommerce.sln";
 
+#if BALANCED
+    [Params(10)]
+#else
+    [Params(1, 5, 10, 20, 50, 100)]
+#endif
+    public int BenchmarkedTypesPercentage { get; set; }
+
+#if BALANCED
+    [Params(10)]
+#else
+    [Params(10, 30, 60, 100)]
+#endif
+    public int BenchmarkedMembersPercentage { get; set; }
+
+#if REGRESSION_TEST
+    [Params("2025.1.17", "2025.2.5-rc", "2026.0.10-rc")]
+    public string? Version { get; set; }
+#else
+    public string? Version => null;
+#endif
+
     [IterationSetup(Target = nameof(WithoutMetalama))]
     public void SetupWithoutMetalama() => RunDotnetClean(SOLUTION).Wait();
 
@@ -129,98 +145,20 @@ public class Benchmark
     [IterationSetup(Target = nameof(WithMetalama))]
     public void SetupWithMetalama() => RunDotnetClean(SOLUTION).Wait();
 
-#if REGRESSION_TEST
-    // 2026.0.10-rc
-    [Arguments(1, 10, "2026.0.10-rc", null)]
-    [Arguments(1, 50, "2026.0.10-rc", null)]
-    [Arguments(1, 100, "2026.0.10-rc", null)]
-    [Arguments(10, 10, "2026.0.10-rc", null)]
-    [Arguments(10, 50, "2026.0.10-rc", null)]
-    [Arguments(10, 100, "2026.0.10-rc", null)]
-    [Arguments(50, 10, "2026.0.10-rc", null)]
-    [Arguments(50, 50, "2026.0.10-rc", null)]
-    [Arguments(50, 100, "2026.0.10-rc", null)]
-    [Arguments(100, 10, "2026.0.10-rc", null)]
-    [Arguments(100, 50, "2026.0.10-rc", null)]
-    [Arguments(100, 100, "2026.0.10-rc", null)]
-    // 2025.2.5-rc
-    [Arguments(1, 10, "2025.2.5-rc", null)]
-    [Arguments(1, 50, "2025.2.5-rc", null)]
-    [Arguments(1, 100, "2025.2.5-rc", null)]
-    [Arguments(10, 10, "2025.2.5-rc", null)]
-    [Arguments(10, 50, "2025.2.5-rc", null)]
-    [Arguments(10, 100, "2025.2.5-rc", null)]
-    [Arguments(50, 10, "2025.2.5-rc", null)]
-    [Arguments(50, 50, "2025.2.5-rc", null)]
-    [Arguments(50, 100, "2025.2.5-rc", null)]
-    [Arguments(100, 10, "2025.2.5-rc", null)]
-    [Arguments(100, 50, "2025.2.5-rc", null)]
-    [Arguments(100, 100, "2025.2.5-rc", null)]
-    // 2025.1.17
-    [Arguments(1, 10, "2025.1.17", null)]
-    [Arguments(1, 50, "2025.1.17", null)]
-    [Arguments(1, 100, "2025.1.17", null)]
-    [Arguments(10, 10, "2025.1.17", null)]
-    [Arguments(10, 50, "2025.1.17", null)]
-    [Arguments(10, 100, "2025.1.17", null)]
-    [Arguments(50, 10, "2025.1.17", null)]
-    [Arguments(50, 50, "2025.1.17", null)]
-    [Arguments(50, 100, "2025.1.17", null)]
-    [Arguments(100, 10, "2025.1.17", null)]
-    [Arguments(100, 50, "2025.1.17", null)]
-    [Arguments(100, 100, "2025.1.17", null)]
-#elif BALANCED
-    [Arguments(10, 10, null, null)]
-#else
-    [Arguments(1, 10, null, null)]
-    [Arguments(1, 50, null, null)]
-    [Arguments(1, 100, null, null)]
-    [Arguments(10, 10, null, null)]
-    [Arguments(10, 50, null, null)]
-    [Arguments(10, 100, null, null)]
-    [Arguments(50, 10, null, null)]
-    [Arguments(50, 50, null, null)]
-    [Arguments(50, 100, null, null)]
-    [Arguments(100, 10, null, null)]
-    [Arguments(100, 50, null, null)]
-    [Arguments(100, 100, null, null)]
-#endif
     [Benchmark]
-    public Task WithMetalama(int benchmarkedTypesPercentage, int benchmarkedMembersPercentage, string? version = null, string? extraConstants = null)
+    public Task WithMetalama()
     {
-        static int calculateFractionInverse(int percentage)
-        {
-            var fractionInverse = 1 / (percentage / 100.0);
-            var fractionInverseInt = (int)fractionInverse;
-
-            if (fractionInverse != fractionInverseInt)
-            {
-                throw new ArgumentException($"Invalid percentage: {percentage}");
-            }
-
-            return fractionInverseInt;
-        }
-
-        var benchmarkedTypesFractionInverse = calculateFractionInverse(benchmarkedTypesPercentage);
-        var benchmarkedMembersFractionInverse = calculateFractionInverse(benchmarkedMembersPercentage);
-
-        var constants = "BENCHMARK";
-        if (extraConstants != null)
-        {
-            constants += "," + extraConstants;
-        }
-
         var properties = new Dictionary<string, string>
         {
             ["MetalamaEnabled"] = "true",
-            ["ExtraConstants"] = constants,
-            ["BenchmarkedTypesFractionInverse"] = benchmarkedTypesFractionInverse.ToString(),
-            ["BenchmarkedMembersFractionInverse"] = benchmarkedMembersFractionInverse.ToString()
+            ["ExtraConstants"] = "BENCHMARK",
+            ["BenchmarkedTypesPercentage"] = BenchmarkedTypesPercentage.ToString(),
+            ["BenchmarkedMembersPercentage"] = BenchmarkedMembersPercentage.ToString()
         };
 
-        if (version != null)
+        if (Version != null)
         {
-            properties["MetalamaVersion"] = version;
+            properties["MetalamaVersion"] = Version;
         }
 
         return RunDotnetBuild(SOLUTION, properties);
