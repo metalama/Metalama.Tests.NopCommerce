@@ -5,17 +5,24 @@ Metalama Build Overhead Regression Analysis
 Analyzes BenchmarkDotNet CSV results to predict build time overhead
 as a function of aspect density (type % × method %).
 
-Model: TimeRatio = β₀ + β₁×T + β₂×(T×M)
+Model: TimeRatio = B0 + B1*T + B2*(T*M)
 Where:
   - TimeRatio = build time with Metalama / build time without
   - T = fraction of types with aspects (0-1)
   - M = fraction of methods within targeted types with aspects (0-1)
 """
 
+import sys
+import io
+
+# Force UTF-8 output on Windows
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import argparse
 import glob
 import re
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -82,7 +89,7 @@ def load_and_merge_csvs(patterns: list[str]) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True)
 
 
-def fit_regression(T: np.ndarray, M: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float, float]:
+def fit_regression(T: np.ndarray, M: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float, float, np.ndarray]:
     """
     Fit bilinear model: y = β₀ + β₁×T + β₂×(T×M)
 
@@ -90,7 +97,10 @@ def fit_regression(T: np.ndarray, M: np.ndarray, y: np.ndarray) -> tuple[np.ndar
         coefficients: [β₀, β₁, β₂]
         r_squared: coefficient of determination
         adj_r_squared: adjusted R² (corrected for number of predictors)
+        std_errors: standard errors for each coefficient
     """
+    from scipy import stats
+
     n = len(y)
     p = 3  # number of parameters (β₀, β₁, β₂)
 
@@ -113,7 +123,12 @@ def fit_regression(T: np.ndarray, M: np.ndarray, y: np.ndarray) -> tuple[np.ndar
     # Compute adjusted R²: 1 - (1 - R²) × (n - 1) / (n - p)
     adj_r_squared = 1 - (1 - r_squared) * (n - 1) / (n - p) if n > p else 0.0
 
-    return coeffs, r_squared, adj_r_squared
+    # Compute standard errors of coefficients
+    mse = ss_res / (n - p)  # mean squared error
+    var_covar = mse * np.linalg.inv(X.T @ X)  # variance-covariance matrix
+    std_errors = np.sqrt(np.diag(var_covar))
+
+    return coeffs, r_squared, adj_r_squared, std_errors
 
 
 def predict(coeffs: np.ndarray, T: float, M: float) -> float:
@@ -150,20 +165,29 @@ def analyze(df: pd.DataFrame) -> pd.DataFrame:
         M = version_df['M'].values
         y = version_df['TimeRatio'].values
 
-        coeffs, r_squared, adj_r_squared = fit_regression(T, M, y)
+        coeffs, r_squared, adj_r_squared, std_errors = fit_regression(T, M, y)
 
         # Predict at typical 10% × 10%
         overhead_10_10 = predict(coeffs, 0.1, 0.1)
 
+        # 95% confidence interval half-width (t-value for 95% CI with n-p degrees of freedom)
+        from scipy import stats
+        n = len(version_df)
+        p = 3
+        t_val = stats.t.ppf(0.975, n - p)  # two-tailed 95%
+
         results.append({
             'Version': version,
             'β₀ (Base)': coeffs[0],
+            'β₀ ±95%CI': t_val * std_errors[0],
             'β₁ (Type)': coeffs[1],
+            'β₁ ±95%CI': t_val * std_errors[1],
             'β₂ (Method)': coeffs[2],
+            'β₂ ±95%CI': t_val * std_errors[2],
             'R²': r_squared,
             'Adj R²': adj_r_squared,
             'Overhead@10%×10%': overhead_10_10,
-            'N': len(version_df)
+            'N': n
         })
 
     return pd.DataFrame(results), metalama_df, baseline_time

@@ -2,6 +2,7 @@
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 
@@ -16,8 +17,12 @@ public class Benchmark
         {
             AddJob(Job.Default
                 .WithMaxRelativeError(0.05) // Accept 5% variance
-                .WithWarmupCount(3));
+                .WithWarmupCount(1));
             ArtifactsPath = GetArtifactsPath();
+
+            // Skip redundant combinations where T=0 and M>0
+            // (when no types have aspects, method percentage is irrelevant)
+            AddFilter(new SkipRedundantCombinationsFilter());
         }
 
         private static string GetArtifactsPath()
@@ -29,6 +34,30 @@ public class Benchmark
             var artifactsPath = Path.Combine(baseDir, timestamp);
             Directory.CreateDirectory(artifactsPath);
             return artifactsPath;
+        }
+    }
+
+    private class SkipRedundantCombinationsFilter : IFilter
+    {
+        public bool Predicate(BenchmarkCase benchmarkCase)
+        {
+            var parameters = benchmarkCase.Parameters;
+            var t = parameters["BenchmarkedTypesPercentage"] as int? ?? 0;
+            var m = parameters["BenchmarkedMembersPercentage"] as int? ?? 0;
+
+            // WithoutMetalama doesn't use T/M params, so only run it once (at T=0, M=0)
+            if (benchmarkCase.Descriptor.WorkloadMethod.Name == "WithoutMetalama")
+            {
+                return t == 0 && m == 0;
+            }
+
+            // For WithMetalama: skip T=0,M>0 (redundant since no types means method % is irrelevant)
+            if (t == 0 && m > 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 
@@ -111,21 +140,25 @@ public class Benchmark
 
     private const string SOLUTION = @"src\NopCommerce.sln";
 
-#if BALANCED
+#if ALL
+    [Params(100)]
+#elif TYPICAL
     [Params(10)]
 #else
-    [Params(1, 5, 10, 20, 50, 100)]
+    [Params(0, 1, 5, 10, 20, 50, 100)]
 #endif
     public int BenchmarkedTypesPercentage { get; set; }
 
-#if BALANCED
+#if ALL
+    [Params(100)]
+#elif TYPICAL
     [Params(10)]
 #else
-    [Params(10, 30, 60, 100)]
+    [Params(0, 10, 30, 60, 100)]
 #endif
     public int BenchmarkedMembersPercentage { get; set; }
 
-#if REGRESSION_TEST
+#if REGRESSION
     [Params("2025.1.17", "2025.2.5-rc", "2026.0.10-rc")]
     public string? Version { get; set; }
 #else

@@ -37,9 +37,10 @@ The benchmark project supports three configurations via preprocessor directives:
 
 | Configuration | Define | Description |
 |---------------|--------|-------------|
-| Default | (none) | 24-point matrix: T ∈ {1,5,10,20,50,100}%, M ∈ {10,30,60,100}% |
-| Balanced | `BALANCED` | Single point: T=10%, M=10% |
-| Regression | `REGRESSION_TEST` | 72-point matrix (24 × 3 versions) |
+| Default | (none) | 31-point matrix: T ∈ {0,1,5,10,20,50,100}%, M ∈ {0,10,30,60,100}% (T=0,M>0 skipped) |
+| Typical | `TYPICAL` | Single point: T=10%, M=10% (realistic scenario) |
+| All | `ALL` | Single point: T=100%, M=100% (max aspect density) |
+| Regression | `REGRESSION` | Multi-version matrix comparing across Metalama versions |
 
 ### Running
 
@@ -49,11 +50,11 @@ cd Metalama.NopCommerce.Benchmarks
 # Default configuration (12 combinations)
 dotnet run -c Release
 
-# Balanced (quick single-point test)
-dotnet run -c Release -p:DefineConstants=BALANCED
+# Typical (quick single-point test)
+dotnet run -c Release -p:DefineConstants=TYPICAL
 
 # Regression test (compare versions)
-dotnet run -c Release -p:DefineConstants=REGRESSION_TEST
+dotnet run -c Release -p:DefineConstants=REGRESSION
 ```
 
 Results are saved to `benchmarks/results/YYYY-MM-DD-HH-mm/`.
