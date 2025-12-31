@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DefineConstants Condition="'$(RegressionTest)' == 'true'">$(DefineConstants);REGRESSION_TEST</DefineConstants>
+    <!-- Enable DAILY_BUILDS mode to benchmark against daily builds from commits directory -->
+    <!-- Usage: dotnet run -c Release -p:DailyBuilds=true -->
+    <DefineConstants Condition="'$(DailyBuilds)' == 'true'">$(DefineConstants);DAILY_BUILDS;TYPICAL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

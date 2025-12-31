@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Filters;
@@ -15,8 +16,13 @@ public class Benchmark
     {
         public Config()
         {
+#if DOTNETSDK
+            var maxRelativeError = 0.01; // 1% variance for SDK comparison
+#else
+            var maxRelativeError = 0.05; // 5% variance for Metalama benchmarks
+#endif
             AddJob(Job.Default
-                .WithMaxRelativeError(0.05) // Accept 5% variance
+                .WithMaxRelativeError(maxRelativeError)
                 .WithWarmupCount(1));
             ArtifactsPath = GetArtifactsPath();
 
@@ -41,6 +47,10 @@ public class Benchmark
     {
         public bool Predicate(BenchmarkCase benchmarkCase)
         {
+#if DOTNETSDK
+            // In DOTNETSDK mode, only run WithoutMetalama
+            return benchmarkCase.Descriptor.WorkloadMethod.Name == "WithoutMetalama";
+#else
             var parameters = benchmarkCase.Parameters;
             var t = parameters["BenchmarkedTypesPercentage"] as int? ?? 0;
             var m = parameters["BenchmarkedMembersPercentage"] as int? ?? 0;
@@ -58,6 +68,7 @@ public class Benchmark
             }
 
             return true;
+#endif
         }
     }
 
@@ -119,6 +130,20 @@ public class Benchmark
     private static Task RunDotnetClean(string project)
         => RunProcess("dotnet", ["clean", Path.Combine(_repoRoot, project)]);
 
+    private static void SetGlobalJsonSdkVersion(string? version)
+    {
+        if (version == null)
+        {
+            return;
+        }
+
+        var globalJsonPath = Path.Combine(_repoRoot, "global.json");
+        var json = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(globalJsonPath))!;
+        json["sdk"]!["version"] = version;
+        json["sdk"]!["rollForward"] = "feature";
+        File.WriteAllText(globalJsonPath, json.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+    }
+
     private static string FindRepoRoot()
     {
         var dir = Environment.CurrentDirectory;
@@ -140,6 +165,7 @@ public class Benchmark
 
     private const string SOLUTION = @"src\NopCommerce.sln";
 
+#if !DOTNETSDK
 #if ALL
     [Params(100)]
 #elif TYPICAL
@@ -147,14 +173,17 @@ public class Benchmark
 #else
     [Params(0, 1, 5, 10, 20, 50, 100)]
 #endif
+#endif
     public int BenchmarkedTypesPercentage { get; set; }
 
+#if !DOTNETSDK
 #if ALL
     [Params(100)]
 #elif TYPICAL
     [Params(10)]
 #else
     [Params(0, 10, 30, 60, 100)]
+#endif
 #endif
     public int BenchmarkedMembersPercentage { get; set; }
 
@@ -165,8 +194,29 @@ public class Benchmark
     public string? Version => null;
 #endif
 
+#if DAILY_BUILDS
+    // CommitDate parameter for testing daily builds from the commits directory.
+    // The dates should correspond to directories under ..\Metalama\commits\
+    // Usage: dotnet run -c Release -p:DefineConstants=DAILY_BUILDS
+    [Params("2025-09-10", "2025-09-16_01_cc978ebc")]
+    public string? CommitDate { get; set; }
+#else
+    public string? CommitDate => null;
+#endif
+
+#if DOTNETSDK
+    [Params("9.0.308", "8.0.416", "10.0.101")]
+    public string DotNetSdkVersion { get; set; } = "9.0.308";
+#else
+    public string? DotNetSdkVersion => null;
+#endif
+
     [IterationSetup(Target = nameof(WithoutMetalama))]
-    public void SetupWithoutMetalama() => RunDotnetClean(SOLUTION).Wait();
+    public void SetupWithoutMetalama()
+    {
+        SetGlobalJsonSdkVersion(DotNetSdkVersion);
+        RunDotnetClean(SOLUTION).Wait();
+    }
 
     [Benchmark(Baseline = true)]
     public Task WithoutMetalama() => RunDotnetBuild(SOLUTION, new Dictionary<string, string>
@@ -192,6 +242,11 @@ public class Benchmark
         if (Version != null)
         {
             properties["MetalamaVersion"] = Version;
+        }
+
+        if (CommitDate != null)
+        {
+            properties["MetalamaCommitDate"] = CommitDate;
         }
 
         return RunDotnetBuild(SOLUTION, properties);

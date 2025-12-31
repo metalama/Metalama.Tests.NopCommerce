@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <!-- Default Roslyn version - can be overridden via -p:RoslynVersion=x.y.z -->
+    <RoslynVersion Condition="'$(RoslynVersion)' == ''">4.14.0</RoslynVersion>
+
+    <!-- Define constant based on major version for conditional code -->
+    <DefineConstants Condition="$(RoslynVersion.StartsWith('4.'))">$(DefineConstants);ROSLYN4</DefineConstants>
+    <DefineConstants Condition="$(RoslynVersion.StartsWith('5.'))">$(DefineConstants);ROSLYN5</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
+</Project>

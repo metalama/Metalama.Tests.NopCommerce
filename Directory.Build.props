@@ -4,8 +4,19 @@
     <RepoDirectory>$(MSBuildThisFileDirectory)</RepoDirectory>
     <RepoKind>GitHub</RepoKind>
     <DefineConstants Condition=" '$(ExtraConstants)' != '' ">$(DefineConstants);$(ExtraConstants)</DefineConstants>
+
+    <!-- Path to daily builds directory (relative to Metalama repo root) -->
+    <MetalamaCommitsRoot Condition="'$(MetalamaCommitsRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\Metalama\commits'))</MetalamaCommitsRoot>
   </PropertyGroup>
 
+  <!--
+    When MetalamaCommitDate is specified (e.g., 2025-10-03), import the daily build's version props.
+    This allows benchmarking against specific daily builds of Metalama.
+    Usage: dotnet build -p:MetalamaCommitDate=2025-10-03
+  -->
+  <Import
+    Project="$(MetalamaCommitsRoot)\$(MetalamaCommitDate)\Metalama.version.props"
+    Condition="'$(MetalamaCommitDate)' != '' AND Exists('$(MetalamaCommitsRoot)\$(MetalamaCommitDate)\Metalama.version.props')" />
 
   <Import Project="eng\Versions.props"/>
   <Import Project="eng\Packaging.props"/>

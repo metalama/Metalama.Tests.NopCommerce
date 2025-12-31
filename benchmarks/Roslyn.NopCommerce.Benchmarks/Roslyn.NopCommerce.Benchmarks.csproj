@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RoslynVersion>4.14.0</RoslynVersion>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
+
+    <!-- Set UseMetalamaCompiler to a version like 2025.1.11 or 2026.0.6-rc to use Metalama's forked Roslyn -->
+    <UseMetalamaCompiler></UseMetalamaCompiler>
+    <NuGetPackageRoot Condition="'$(NuGetPackageRoot)' == ''">$(USERPROFILE)\.nuget\packages</NuGetPackageRoot>
+    <MetalamaCompilerPath>$(NuGetPackageRoot)\metalama.compiler\$(UseMetalamaCompiler)\tasks\net8.0\bincore</MetalamaCompilerPath>
+  </PropertyGroup>
+
+  <!-- Use standard NuGet packages when UseMetalamaCompiler is not set -->
+  <ItemGroup Condition="'$(UseMetalamaCompiler)' == ''">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" />
+  </ItemGroup>
+
+  <!-- Use Metalama.Compiler's forked Roslyn assemblies when UseMetalamaCompiler is set -->
+  <ItemGroup Condition="'$(UseMetalamaCompiler)' != ''">
+    <Reference Include="Microsoft.CodeAnalysis">
+      <HintPath>$(MetalamaCompilerPath)\Microsoft.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp">
+      <HintPath>$(MetalamaCompilerPath)\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+    </Reference>
+    <!-- Required dependencies -->
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+</Project>

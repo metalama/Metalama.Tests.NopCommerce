@@ -64,7 +64,7 @@ def load_csv(filepath: Path) -> pd.DataFrame:
     try:
         df['version'] = get_column(df, 'Version', 'version')
     except KeyError:
-        df['version'] = None
+        df['version'] = 'default'
 
     # Add source file
     df['SourceFile'] = filepath.name

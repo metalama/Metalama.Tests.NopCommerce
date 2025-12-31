@@ -41,6 +41,7 @@ The benchmark project supports three configurations via preprocessor directives:
 | Typical | `TYPICAL` | Single point: T=10%, M=10% (realistic scenario) |
 | All | `ALL` | Single point: T=100%, M=100% (max aspect density) |
 | Regression | `REGRESSION` | Multi-version matrix comparing across Metalama versions |
+| .NET SDK | `DOTNETSDK` | Compare .NET SDK versions (8.0.100, 9.0.100, 10.0.100), no Metalama |
 
 ### Running
 
@@ -55,6 +56,9 @@ dotnet run -c Release -p:DefineConstants=TYPICAL
 
 # Regression test (compare versions)
 dotnet run -c Release -p:DefineConstants=REGRESSION
+
+# .NET SDK comparison (no Metalama)
+dotnet run -c Release -p:DefineConstants=DOTNETSDK
 ```
 
 Results are saved to `benchmarks/results/YYYY-MM-DD-HH-mm/`.
