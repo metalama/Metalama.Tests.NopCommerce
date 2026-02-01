@@ -1,3 +1,3 @@
 Dependencies.props
 *.g.props
-docker-context/.g
+eng/docker-context/.g
