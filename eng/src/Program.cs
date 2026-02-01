@@ -8,13 +8,15 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Docker;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2026_1;
 
+const string dotNetSdkVersion = PreferredVersions.DotNetSdk.V_9_0;
+
 var product = new Product(MetalamaDependencies.NopCommerce)
 {
     OverriddenBuildAgentRequirements = new ContainerRequirements( ContainerHostKind.Windows )
     {
         Components =
         [
-            new DotNetComponent( PreferredVersions.DotNetSdk.V_9_0, DotNetComponentKind.Sdk ),
+            new DotNetComponent( dotNetSdkVersion, DotNetComponentKind.Sdk ),
             new DotNetComponent( PreferredVersions.DotNet.V_8_0, DotNetComponentKind.AspNetCoreRuntime ),
         ]
     },
