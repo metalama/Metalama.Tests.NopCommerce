@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
@@ -9,8 +10,14 @@ using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 
+Console.WriteLine($"Command line: {string.Join(" ", args)}");
+
 var preciseMode = args.Contains("--precise");
 var filteredArgs = args.Where(a => a != "--precise").ToArray();
+
+#if REGRESSION
+Console.WriteLine("REGRESSION mode enabled - testing multiple Metalama versions");
+#endif
 
 BenchmarkRunner.Run<Benchmark>(new Benchmark.Config(preciseMode), filteredArgs);
 
@@ -33,6 +40,7 @@ public class Benchmark
                 .WithWarmupCount(1));
             AddLogger(ConsoleLogger.Default);
             AddExporter(CsvExporter.Default);
+            AddColumnProvider(DefaultColumnProviders.Instance);
             ArtifactsPath = GetArtifactsPath();
 
             // Skip redundant combinations where T=0 and M>0
