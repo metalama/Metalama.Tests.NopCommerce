@@ -10,12 +10,12 @@ using BenchmarkDotNet.Running;
 var preciseMode = args.Contains("--precise");
 var filteredArgs = args.Where(a => a != "--precise").ToArray();
 
-BenchmarkRunner.Run<Benchmark>(new Config(preciseMode), filteredArgs);
+BenchmarkRunner.Run<Benchmark>(new Benchmark.Config(preciseMode), filteredArgs);
 
 [Config(typeof(Config))]
 public class Benchmark
 {
-    private class Config : ManualConfig
+    public class Config : ManualConfig
     {
         public Config() : this(false) { }
 
