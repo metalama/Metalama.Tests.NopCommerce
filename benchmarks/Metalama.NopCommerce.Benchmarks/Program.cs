@@ -206,27 +206,21 @@ public class Benchmark
 
 #if REGRESSION
     [Params("2026.0.16", "2026.1.1-preview", "2025.1.17")]
-    public string? Version { get; set; }
-#else
-    public string? Version => null;
 #endif
+    public string? Version { get; set; }
 
 #if DAILY_BUILDS
     // CommitDate parameter for testing daily builds from the commits directory.
     // The dates should correspond to directories under ..\Metalama\commits\
     // Usage: dotnet run -c Release -p:DefineConstants=DAILY_BUILDS
     [Params("2025-09-10", "2025-09-16_01_cc978ebc")]
-    public string? CommitDate { get; set; }
-#else
-    public string? CommitDate => null;
 #endif
+    public string? CommitDate { get; set; }
 
 #if DOTNETSDK
     [Params("9.0.308", "8.0.416", "10.0.101")]
-    public string DotNetSdkVersion { get; set; } = "9.0.308";
-#else
-    public string? DotNetSdkVersion => null;
 #endif
+    public string? DotNetSdkVersion { get; set; }
 
     [IterationSetup(Target = nameof(WithoutMetalama))]
     public void SetupWithoutMetalama()
