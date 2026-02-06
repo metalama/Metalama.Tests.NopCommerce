@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 
 var preciseMode = args.Contains("--precise");
@@ -29,6 +30,7 @@ public class Benchmark
             AddJob(Job.Default
                 .WithMaxRelativeError(maxRelativeError)
                 .WithWarmupCount(1));
+            AddLogger(ConsoleLogger.Default);
             ArtifactsPath = GetArtifactsPath();
 
             // Skip redundant combinations where T=0 and M>0
