@@ -95,17 +95,11 @@ METALAMA BUILD OVERHEAD REGRESSION ANALYSIS
 Model: TimeRatio = β₀ + β₁×T + β₂×(T×M)
 Where T = type%, M = method% (as fractions 0-1)
 
-     Version  β₀ (Base)  β₁ (Type)  β₂ (Method)     R²  Adj R²  Overhead@10%×10%  N
-   2025.1.17     1.0904     0.0186       0.1891 0.9919  0.9911            1.0942 24
- 2025.2.5-rc     1.0911     0.0201       0.1867 0.9933  0.9927            1.0950 24
-2026.0.10-rc     1.3013     0.0178       0.2207 0.9934  0.9928            1.3052 24
+         Version  β₀ (Base)  β₀ ±95%CI  β₁ (Type)  β₁ ±95%CI  β₂ (Method)  β₂ ±95%CI     R²  Adj R²  Overhead@10%×10%  N
+       2025.1.17     1.0716     0.0099    -0.0181     0.0282       0.2078     0.0452 0.8188  0.8059            1.0718 31
+       2026.0.16     1.0610     0.0108    -0.0212     0.0308       0.2378     0.0492 0.8324  0.8204            1.0613 31
+2026.1.1-preview     1.0580     0.0113    -0.0192     0.0320       0.2144     0.0513 0.7879  0.7728            1.0583 31
 
---------------------------------------------------------------------------------
-Interpretation:
-  2025.1.17: Base overhead +9.0%, at 10%×10% density: +9.4% (R²=99.19%)
-  2025.2.5-rc: Base overhead +9.1%, at 10%×10% density: +9.5% (R²=99.33%)
-  2026.0.10-rc: Base overhead +30.1%, at 10%×10% density: +30.5% (R²=99.34%)
-```
 
 **Generated files:**
 - `regression_results.csv` - Coefficients and R² per version

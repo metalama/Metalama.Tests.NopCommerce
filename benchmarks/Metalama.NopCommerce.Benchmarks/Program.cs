@@ -7,19 +7,24 @@ using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<Benchmark>();
+var preciseMode = args.Contains("--precise");
+var filteredArgs = args.Where(a => a != "--precise").ToArray();
+
+BenchmarkRunner.Run<Benchmark>(new Config(preciseMode), filteredArgs);
 
 [Config(typeof(Config))]
 public class Benchmark
 {
     private class Config : ManualConfig
     {
-        public Config()
+        public Config() : this(false) { }
+
+        public Config(bool preciseMode)
         {
 #if DOTNETSDK
-            var maxRelativeError = 0.01; // 1% variance for SDK comparison
+            var maxRelativeError = preciseMode ? 0.0005 : 0.01; // 0.05% or 1% variance for SDK comparison
 #else
-            var maxRelativeError = 0.05; // 5% variance for Metalama benchmarks
+            var maxRelativeError = preciseMode ? 0.0005 : 0.05; // 0.05% or 5% variance for Metalama benchmarks
 #endif
             AddJob(Job.Default
                 .WithMaxRelativeError(maxRelativeError)
@@ -188,7 +193,7 @@ public class Benchmark
     public int BenchmarkedMembersPercentage { get; set; }
 
 #if REGRESSION
-    [Params("2025.1.17", "2025.2.5-rc", "2026.0.10-rc")]
+    [Params("2026.0.16", "2026.1.1-preview", "2025.1.17")]
     public string? Version { get; set; }
 #else
     public string? Version => null;
