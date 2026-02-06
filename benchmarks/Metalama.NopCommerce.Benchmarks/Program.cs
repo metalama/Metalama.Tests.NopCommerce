@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Filters;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 
@@ -31,6 +32,7 @@ public class Benchmark
                 .WithMaxRelativeError(maxRelativeError)
                 .WithWarmupCount(1));
             AddLogger(ConsoleLogger.Default);
+            AddExporter(CsvExporter.Default);
             ArtifactsPath = GetArtifactsPath();
 
             // Skip redundant combinations where T=0 and M>0
