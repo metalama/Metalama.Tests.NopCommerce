@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <MetalamaVersion Condition="'$(MetalamaVersion)' == ''">2026.1.6-preview</MetalamaVersion>
+    <MetalamaVersion Condition="'$(MetalamaVersion)' == ''">2026.1.7-preview</MetalamaVersion>
     <MetalamaCompilerVersion Condition="'$(MetalamaCompilerVersion)' == ''">2026.1.5-preview</MetalamaCompilerVersion>
-    <MetalamaTestsNopCommerceReleaseVersion>4.5.30-preview</MetalamaTestsNopCommerceReleaseVersion>
-    <MetalamaTestsNopCommerceReleaseMainVersion>4.5.30</MetalamaTestsNopCommerceReleaseMainVersion>
+    <MetalamaTestsNopCommerceReleaseVersion>4.5.31-preview</MetalamaTestsNopCommerceReleaseVersion>
+    <MetalamaTestsNopCommerceReleaseMainVersion>4.5.31</MetalamaTestsNopCommerceReleaseMainVersion>
   </PropertyGroup>
 </Project>
