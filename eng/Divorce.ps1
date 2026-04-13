@@ -26,10 +26,16 @@
 #   6. Run Nop.Tests.
 #
 # Usage (from repo root):
-#   pwsh ./eng/Divorce.ps1                  # run the whole procedure
-#   pwsh ./eng/Divorce.ps1 -SkipTest        # build post-divorce but skip tests
-#   pwsh ./eng/Divorce.ps1 -SkipFormat      # skip the two dotnet format passes
-#   pwsh ./eng/Divorce.ps1 -Force           # --force to metalama divorce (dirty tree)
+#   pwsh ./eng/Divorce.ps1                                              # full solution
+#   pwsh ./eng/Divorce.ps1 -Project src/Libraries/Nop.Core/Nop.Core.csproj  # single project
+#   pwsh ./eng/Divorce.ps1 -SkipTest                                    # build post-divorce but skip tests
+#   pwsh ./eng/Divorce.ps1 -SkipFormat                                  # skip the two dotnet format passes
+#   pwsh ./eng/Divorce.ps1 -Force                                       # --force to metalama divorce (dirty tree)
+#
+# The pre-divorce dotnet format changes are git-staged after step 1, so:
+#   git diff           shows divorce + post-format changes only
+#   git diff --cached  shows pre-format changes only
+#   git diff HEAD      shows everything
 
 [CmdletBinding(PositionalBinding = $false)]
 param(
@@ -37,6 +43,11 @@ param(
 
     # Path to the Metalama source repo containing the locally-built Metalama.Tool.
     [string]$MetalamaRepo = (Resolve-Path (Join-Path $PSScriptRoot '..\..\Metalama')).Path,
+
+    # Project (.csproj) to divorce. If omitted, divorces the whole solution.
+    # When set, the build/format/divorce passes are scoped to that single
+    # project so the user can inspect the diff in isolation.
+    [string]$Project,
 
     # Skip the two dotnet format passes (pre- and post-divorce).
     [switch]$SkipFormat,
@@ -54,6 +65,23 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $solution = Join-Path $repoRoot 'src/NopCommerce.sln'
 $testProject = Join-Path $repoRoot 'src/Tests/Nop.Tests/Nop.Tests.csproj'
 
+# Resolve the build/format/divorce target. When -Project is given we scope
+# everything to that single .csproj so the user can review one project's
+# divorce diff in isolation.
+if ($Project)
+{
+    $buildTarget = (Resolve-Path $Project).Path
+    $projectDir = Split-Path -Parent $buildTarget
+    $cleanRoot = $projectDir
+    $divorceCwd = $projectDir
+}
+else
+{
+    $buildTarget = $solution
+    $cleanRoot = $repoRoot
+    $divorceCwd = $repoRoot
+}
+
 # ---- Locate the locally-built metalama CLI ------------------------------
 $metalamaExe = [System.IO.Path]::GetFullPath(
     (Join-Path $MetalamaRepo "Metalama.Framework/src/Metalama.Tool/bin/$Configuration/net8.0/metalama.exe"))
@@ -67,7 +95,7 @@ if (-not (Test-Path $metalamaExe))
 Write-Host ""
 Write-Host "Divorce test" -ForegroundColor Cyan
 Write-Host "  Repo root       : $repoRoot"
-Write-Host "  Solution        : $solution"
+Write-Host "  Build target    : $buildTarget"
 Write-Host "  Test project    : $testProject"
 Write-Host "  Configuration   : $Configuration"
 Write-Host "  Metalama CLI    : $metalamaExe"
@@ -79,8 +107,8 @@ Write-Host ""
 # populated obj/ with e.g. BENCHMARK-constant output, it must be cleared
 # before the formatted transformed files are produced; otherwise the
 # divorced tree will contain stale, non-parseable code.
-Write-Host "[0/6] Cleaning obj/ and bin/ under $repoRoot ..." -ForegroundColor Cyan
-Get-ChildItem -Path $repoRoot -Recurse -Force -Directory `
+Write-Host "[0/6] Cleaning obj/ and bin/ under $cleanRoot ..." -ForegroundColor Cyan
+Get-ChildItem -Path $cleanRoot -Recurse -Force -Directory `
     -ErrorAction SilentlyContinue `
     | Where-Object { $_.Name -in 'obj', 'bin' -and $_.FullName -notmatch '\\\.git\\' } `
     | ForEach-Object {
@@ -93,10 +121,28 @@ if (-not $SkipFormat)
 {
     Write-Host ""
     Write-Host "[1/6] dotnet format (pre-divorce) ..." -ForegroundColor Cyan
-    & dotnet format $solution --verbosity minimal
+    & dotnet format $buildTarget --verbosity minimal
     if ($LASTEXITCODE -ne 0)
     {
         throw "Pre-divorce dotnet format failed with exit code $LASTEXITCODE."
+    }
+
+    # Stage the pre-divorce format changes so the user can review the
+    # divorce/post-format diff in isolation (git diff = post-format only;
+    # git diff --cached = pre-format only; git diff HEAD = both).
+    Write-Host "  Staging pre-divorce format changes ..." -ForegroundColor DarkGray
+    Push-Location $repoRoot
+    try
+    {
+        & git add -A
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw "git add -A failed with exit code $LASTEXITCODE."
+        }
+    }
+    finally
+    {
+        Pop-Location
     }
 }
 else
@@ -116,7 +162,7 @@ $env:MetalamaFormatOutput = 'true'
 
 try
 {
-    & dotnet build $solution `
+    & dotnet build $buildTarget `
         -c $Configuration `
         -p:MetalamaEmitCompilerTransformedFiles=true `
         -p:MetalamaFormatOutput=true `
@@ -137,9 +183,11 @@ Write-Host ""
 Write-Host "[3/6] Running 'metalama divorce' from $metalamaExe ..." -ForegroundColor Cyan
 
 $divorceArgs = @('divorce')
-if ($Force) { $divorceArgs += '--force' }
+# Pre-format staging dirties the working tree; --force is required to let
+# metalama divorce proceed past its clean-tree check.
+if ($Force -or -not $SkipFormat) { $divorceArgs += '--force' }
 
-Push-Location $repoRoot
+Push-Location $divorceCwd
 try
 {
     & $metalamaExe @divorceArgs
@@ -158,9 +206,18 @@ finally
 # normalize the injected code with the project's preferred tool.
 if (-not $SkipFormat)
 {
+    # Files copied out of obj/ by `metalama divorce` inherit the read-only
+    # attribute that Metalama set on the transformed-files cache. dotnet
+    # format then fails with UnauthorizedAccessException. Clear the bit on
+    # every .cs file under the divorced scope before formatting.
     Write-Host ""
+    Write-Host "  Clearing read-only attribute on .cs files under $cleanRoot ..." -ForegroundColor DarkGray
+    Get-ChildItem -Path $cleanRoot -Recurse -Filter *.cs -File `
+        | Where-Object { $_.IsReadOnly } `
+        | ForEach-Object { $_.IsReadOnly = $false }
+
     Write-Host "[4/6] dotnet format (post-divorce) ..." -ForegroundColor Cyan
-    & dotnet format $solution --verbosity minimal
+    & dotnet format $buildTarget --verbosity minimal
     if ($LASTEXITCODE -ne 0)
     {
         throw "Post-divorce dotnet format failed with exit code $LASTEXITCODE."
@@ -175,14 +232,19 @@ else
 Write-Host ""
 Write-Host "[5/6] Rebuilding solution without Metalama ..." -ForegroundColor Cyan
 
-& dotnet build $solution -c $Configuration /t:Rebuild -v:minimal
+& dotnet build $buildTarget -c $Configuration /t:Rebuild -v:minimal
 if ($LASTEXITCODE -ne 0)
 {
     throw "Post-divorce build failed with exit code $LASTEXITCODE. The divorced code did not compile with the stock Microsoft compiler."
 }
 
 # ---- 6. Run the unit tests ----------------------------------------------
-if (-not $SkipTest)
+if ($Project)
+{
+    Write-Host ""
+    Write-Host "[6/6] Skipping tests (single-project mode)." -ForegroundColor DarkYellow
+}
+elseif (-not $SkipTest)
 {
     Write-Host ""
     Write-Host "[6/6] Running unit tests ..." -ForegroundColor Cyan
