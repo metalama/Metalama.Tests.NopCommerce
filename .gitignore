@@ -216,3 +216,4 @@ artifacts/
 global.json
 nuget.config
 eng/docket-context/.g/
+.g/
