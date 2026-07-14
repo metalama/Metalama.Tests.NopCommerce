@@ -2,7 +2,7 @@
   <PropertyGroup>
     <MetalamaVersion Condition="'$(MetalamaVersion)' == ''">2026.1.20</MetalamaVersion>
     <MetalamaCompilerVersion Condition="'$(MetalamaCompilerVersion)' == ''">2026.1.12</MetalamaCompilerVersion>
-    <MetalamaTestsNopCommerceReleaseVersion>4.5.49</MetalamaTestsNopCommerceReleaseVersion>
-    <MetalamaTestsNopCommerceReleaseMainVersion>4.5.49</MetalamaTestsNopCommerceReleaseMainVersion>
+    <MetalamaTestsNopCommerceReleaseVersion>4.5.50</MetalamaTestsNopCommerceReleaseVersion>
+    <MetalamaTestsNopCommerceReleaseMainVersion>4.5.50</MetalamaTestsNopCommerceReleaseMainVersion>
   </PropertyGroup>
 </Project>
