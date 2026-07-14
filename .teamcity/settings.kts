@@ -102,7 +102,7 @@ object DebugBuild : BuildType({
         }
         gitHubAppBuildScopedToken {
             parameterName = "env.GITHUB_TOKEN"
-            connectionId = "%GITHUB_CONNECTION_POSTSHARP%"
+            connectionId = "%GITHUB_CONNECTION_METALAMA%"
             targetRepositories = "Metalama.Tests.NopCommerce"
         }
         commitStatusPublisher {
@@ -235,7 +235,7 @@ object ReleaseBuild : BuildType({
         }
         gitHubAppBuildScopedToken {
             parameterName = "env.GITHUB_TOKEN"
-            connectionId = "%GITHUB_CONNECTION_POSTSHARP%"
+            connectionId = "%GITHUB_CONNECTION_METALAMA%"
             targetRepositories = "Metalama.Tests.NopCommerce"
         }
         commitStatusPublisher {
@@ -357,7 +357,7 @@ object PublicBuild : BuildType({
         }
         gitHubAppBuildScopedToken {
             parameterName = "env.GITHUB_TOKEN"
-            connectionId = "%GITHUB_CONNECTION_POSTSHARP%"
+            connectionId = "%GITHUB_CONNECTION_METALAMA%"
             targetRepositories = "Metalama.Tests.NopCommerce"
         }
         commitStatusPublisher {
@@ -474,7 +474,7 @@ object PublicDeployment : BuildType({
         }
         gitHubAppBuildScopedToken {
             parameterName = "env.GITHUB_TOKEN"
-            connectionId = "%GITHUB_CONNECTION_POSTSHARP%"
+            connectionId = "%GITHUB_CONNECTION_METALAMA%"
             targetRepositories = "Metalama.Tests.NopCommerce"
         }
     }
@@ -585,7 +585,7 @@ object UpstreamMerge : BuildType({
         }
         gitHubAppBuildScopedToken {
             parameterName = "env.GITHUB_TOKEN"
-            connectionId = "%GITHUB_CONNECTION_POSTSHARP%"
+            connectionId = "%GITHUB_CONNECTION_METALAMA%"
             targetRepositories = "Metalama.Tests.NopCommerce"
         }
     }
