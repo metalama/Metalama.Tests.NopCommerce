@@ -63,8 +63,8 @@ ENV PATH="C:\Program Files\dotnet;${PATH}"
 RUN & .\dotnet-install.ps1 -Version 8.0.23 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet'
 
 
-# Install .NET Sdk 9.0.310
-RUN & .\dotnet-install.ps1 -Version 9.0.310 -InstallDir 'C:\Program Files\dotnet'
+# Install .NET Sdk 10.0.400
+RUN & .\dotnet-install.ps1 -Version 10.0.400 -InstallDir 'C:\Program Files\dotnet'
 
 
 # .NET Dump Tool
