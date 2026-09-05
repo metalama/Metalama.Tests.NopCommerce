@@ -8,7 +8,9 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Docker;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2026_1;
 
-const string dotNetSdkVersion = PreferredVersions.DotNetSdk.V_9_0;
+var preferredVersions = MetalamaDependencies.Family.PreferredVersions;
+
+var dotNetSdkVersion = preferredVersions.DotNetSdk.V_9_0;
 
 var product = new Product(MetalamaDependencies.NopCommerce)
 {
@@ -17,11 +19,11 @@ var product = new Product(MetalamaDependencies.NopCommerce)
         Components =
         [
             new DotNetComponent( dotNetSdkVersion, DotNetComponentKind.Sdk ),
-            new DotNetComponent( PreferredVersions.DotNet.V_8_0, DotNetComponentKind.AspNetCoreRuntime ),
+            new DotNetComponent( preferredVersions.DotNetRuntime.V_8_0, DotNetComponentKind.AspNetCoreRuntime ),
         ]
     },
     GenerateNuGetConfig = true,
-    DotNetSdkVersion = new DotNetSdkVersion( PreferredVersions.DotNetSdk.V_9_0 ),
+    DotNetSdkVersion = new DotNetSdkVersion( preferredVersions.DotNetSdk.V_9_0 ),
     Solutions = [new DotNetSolution("src\\NopCommerce.sln")],
 };
 
