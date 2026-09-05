@@ -8,10 +8,12 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Docker;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2027_0;
 
+var preferredVersions = MetalamaDependencies.Family.PreferredVersions;
+
 // The only .NET SDK of the build agent, and the one pinned in global.json. The version comes from the product
 // family, so that it matches the feature band that the Visual Studio version of the family installs. The solution
 // targets net8.0, which the .NET 10 SDK compiles from the targeting packs that it restores from NuGet.
-var dotNetSdkVersion = MetalamaDependencies.Family.PreferredVersions.DotNetSdk.V_10_0;
+var dotNetSdkVersion = preferredVersions.DotNetSdk.V_10_0;
 
 var product = new Product(MetalamaDependencies.NopCommerce)
 {
@@ -20,7 +22,7 @@ var product = new Product(MetalamaDependencies.NopCommerce)
         Components =
         [
             new DotNetComponent( dotNetSdkVersion, DotNetComponentKind.Sdk ),
-            new DotNetComponent( MetalamaDependencies.Family.PreferredVersions.DotNetRuntime.V_8_0, DotNetComponentKind.AspNetCoreRuntime ),
+            new DotNetComponent( preferredVersions.DotNetRuntime.V_8_0, DotNetComponentKind.AspNetCoreRuntime ),
         ]
     },
     GenerateNuGetConfig = true,
