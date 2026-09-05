@@ -60,6 +60,10 @@ RUN Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet
 ENV PATH="C:\Program Files\dotnet;${PATH}"
 
 
+# Install the .NET SDK from the zip archive
+ENV DOTNET_INSTALL_SKIP_TAR=1
+
+
 # Install .NET AspNetCoreRuntime 8.0.23
 RUN & .\dotnet-install.ps1 -Version 8.0.23 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet'
 
