@@ -68,6 +68,10 @@ RUN & .\dotnet-install.ps1 -Version 8.0.23 -Runtime aspnetcore -InstallDir 'C:\P
 RUN & .\dotnet-install.ps1 -Version 10.0.400 -InstallDir 'C:\Program Files\dotnet'
 
 
+# Install .NET Sdk 11.0.100-preview.7.26381.103
+RUN & .\dotnet-install.ps1 -Version 11.0.100-preview.7.26381.103 -InstallDir 'C:\Program Files\dotnet'
+
+
 # .NET Dump Tool
 RUN dotnet tool install --global dotnet-dump;
 
