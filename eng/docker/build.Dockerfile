@@ -60,12 +60,12 @@ RUN Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet
 ENV PATH="C:\Program Files\dotnet;${PATH}"
 
 
-# Install .NET AspNetCoreRuntime 8.0.23
-RUN & .\dotnet-install.ps1 -Version 8.0.23 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet'
+# Install .NET AspNetCoreRuntime 8.0.32
+RUN & .\dotnet-install.ps1 -Version 8.0.32 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet'
 
 
-# Install .NET Sdk 10.0.400
-RUN & .\dotnet-install.ps1 -Version 10.0.400 -InstallDir 'C:\Program Files\dotnet'
+# Install .NET Sdk 10.0.403
+RUN & .\dotnet-install.ps1 -Version 10.0.403 -InstallDir 'C:\Program Files\dotnet'
 
 
 # Install .NET Sdk 11.0.100-rc.2.26504.105
