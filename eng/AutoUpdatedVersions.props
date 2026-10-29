@@ -4,6 +4,6 @@
     <MetalamaCompilerVersion Condition="'$(MetalamaCompilerVersion)' == ''">2027.0.4-preview</MetalamaCompilerVersion>
     <MetalamaTestsNopCommerceReleaseVersion>4.5.63</MetalamaTestsNopCommerceReleaseVersion>
     <MetalamaTestsNopCommerceReleaseMainVersion>4.5.63</MetalamaTestsNopCommerceReleaseMainVersion>
-    <BackstageVersion Condition="'$(BackstageVersion)' == ''">2027.0.3-preview</BackstageVersion>
+    <BackstageVersion Condition="'$(BackstageVersion)' == ''">2027.0.6-preview</BackstageVersion>
   </PropertyGroup>
 </Project>
